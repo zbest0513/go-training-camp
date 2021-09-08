@@ -12,9 +12,10 @@ func QueryOne(target interface{}) (interface{}, error) {
 	sql := queryOneSqlGenerate(target)
 	//获取要填充的字段
 	values := getScanValues(target)
+	fmt.Printf("values:%v\n", values)
 	//获取数据库连接
 	db := GetConn()
-	err := db.QueryRow(sql, 1).Scan(values...)
+	err := db.QueryRow(sql).Scan(values...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +47,6 @@ func queryOneSqlGenerate(target interface{}) string {
 	}
 	//tags[num] = "111"
 	join := strings.Join(search, ",")
-	sql := fmt.Sprintf(fmt.Sprintf("select %s from %s \n", join, split[len(split)-1]), tags...)
+	sql := fmt.Sprintf(fmt.Sprintf("select %s from %s limit 1", join, split[len(split)-1]), tags...)
 	return sql
 }
