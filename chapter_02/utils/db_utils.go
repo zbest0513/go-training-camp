@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	xerrors "github.com/pkg/errors"
 	"reflect"
 	"strings"
 )
@@ -9,7 +10,11 @@ import (
 //查询单条记录
 func QueryOne(target interface{}) (interface{}, error) {
 	//生成sql
-	sql := queryOneSqlGenerate(target)
+	sql, sql_err := queryOneSqlGenerate(target)
+
+	if sql_err != nil {
+		return nil, sql_err
+	}
 	//获取要填充的字段
 	values := getScanValues(target)
 	fmt.Printf("values:%v\n", values)
@@ -34,7 +39,19 @@ func getScanValues(target interface{}) []interface{} {
 	return values
 }
 
-func queryOneSqlGenerate(target interface{}) string {
+func queryOneSqlGenerate(target interface{}) (str string, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			switch x := r.(type) {
+			case string:
+				err = xerrors.New(x)
+			case error:
+				err = xerrors.Wrap(x, "sql generate error ")
+			default:
+				err = xerrors.New("unbekannt panic")
+			}
+		}
+	}()
 	elem := reflect.TypeOf(target).Elem()
 	name := strings.ToLower(reflect.TypeOf(target).String())
 	split := strings.Split(name, ".")
@@ -45,8 +62,10 @@ func queryOneSqlGenerate(target interface{}) string {
 		tags[i] = elem.Field(i).Tag.Get("model")
 		search[i] = "%v"
 	}
-	//tags[num] = "111"
+	var i int = 0
+	m := 1 / i
+	fmt.Println(m)
 	join := strings.Join(search, ",")
 	sql := fmt.Sprintf(fmt.Sprintf("select %s from %s limit 1", join, split[len(split)-1]), tags...)
-	return sql
+	return sql, nil
 }
