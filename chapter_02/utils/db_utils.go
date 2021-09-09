@@ -8,10 +8,9 @@ import (
 )
 
 //查询单条记录
-func QueryOne(target interface{}) (interface{}, error) {
+func QueryOne(target interface{}, where string) (interface{}, error) {
 	//生成sql
-	sql, sql_err := queryOneSqlGenerate(target)
-
+	sql, sql_err := queryOneSqlGenerate(target, where)
 	if sql_err != nil {
 		return nil, sql_err
 	}
@@ -39,19 +38,9 @@ func getScanValues(target interface{}) []interface{} {
 	return values
 }
 
-func queryOneSqlGenerate(target interface{}) (str string, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			switch x := r.(type) {
-			case string:
-				err = xerrors.New(x)
-			case error:
-				err = xerrors.Wrap(x, "sql generate error ")
-			default:
-				err = xerrors.New("unbekannt panic")
-			}
-		}
-	}()
+//单条查询sql生成
+func queryOneSqlGenerate(target interface{}, where string) (str string, err error) {
+	defer deferError("query sql generate error")
 	elem := reflect.TypeOf(target).Elem()
 	name := strings.ToLower(reflect.TypeOf(target).String())
 	split := strings.Split(name, ".")
@@ -62,10 +51,21 @@ func queryOneSqlGenerate(target interface{}) (str string, err error) {
 		tags[i] = elem.Field(i).Tag.Get("model")
 		search[i] = "%v"
 	}
-	var i int = 0
-	m := 1 / i
-	fmt.Println(m)
 	join := strings.Join(search, ",")
-	sql := fmt.Sprintf(fmt.Sprintf("select %s from %s limit 1", join, split[len(split)-1]), tags...)
+	sql := fmt.Sprintf(fmt.Sprintf("select %s from %s %s limit 1", join, split[len(split)-1], where), tags...)
 	return sql, nil
+}
+
+//默认运行时异常处理，panic 转 error
+func deferError(msg string) {
+	if r := recover(); r != nil {
+		switch x := r.(type) {
+		case string:
+			err = xerrors.New(x)
+		case error:
+			err = xerrors.Wrap(x, msg)
+		default:
+			err = xerrors.New("unbekannt panic")
+		}
+	}
 }

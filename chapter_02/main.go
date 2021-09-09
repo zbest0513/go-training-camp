@@ -5,18 +5,16 @@ import (
 	"chapter_02/utils"
 	"fmt"
 	"log"
-	"reflect"
 )
 
 func main() {
-	user := model.User{Id: 12}
+	user := model.User{Name: "lisi"}
 
-	elem := reflect.ValueOf(&user).Elem()
-	value := elem.FieldByName("Age").Addr().Elem().Interface()
-
-	fmt.Println(value)
-
-	_, err := utils.QueryOne(&user)
+	generator := new(utils.WhereGenerator).NewInstance()
+	where := generator.And("name").Equals(user.Name).Sql()
+	fmt.Println(where)
+	sql, err := utils.QueryOne(&user, where)
+	fmt.Println(sql)
 
 	if err != nil {
 		log.Println(fmt.Sprintf("%+v\n", err))
