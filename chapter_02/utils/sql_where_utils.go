@@ -21,7 +21,7 @@ func (receiver *WhereGenerator) And(column string) *WhereGenerator {
 }
 
 func (receiver *WhereGenerator) Equals(value interface{}) *WhereGenerator {
-	receiver.whereSql = fmt.Sprintf("%s = '%s' ", receiver.whereSql, value)
+	receiver.whereSql = fmt.Sprintf("%s = '%v' ", receiver.whereSql, value)
 	return receiver
 }
 

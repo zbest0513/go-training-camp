@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
 	"time"
 )
 
@@ -20,18 +21,18 @@ const (
 )
 
 var db = &sql.DB{}
-var err error
 
 func init() {
 	dsn := fmt.Sprintf("%s:%s@%s(%s:%d)/%s", username, password, network, server, port, database)
-	db, err = sql.Open("mysql", dsn)
-	if err != nil {
-		panic(fmt.Sprintf("Open mysql failed,err:%v\n", err))
+	db, errMsg = sql.Open("mysql", dsn)
+	if errMsg != nil {
+		//重要资源无法获取连接，不可恢复异常
+		log.Panic(fmt.Sprintf("open mysql failed,err:\n%+v\n", errMsg))
 	}
 	db.SetConnMaxLifetime(connmaxlifetime)
 	db.SetMaxOpenConns(maxopenconns)
 	db.SetMaxIdleConns(maxidleconns)
-	fmt.Println("初始化数据库连接成功...")
+	log.Println("初始化数据库连接成功...")
 }
 
 func GetConn() *sql.DB {
