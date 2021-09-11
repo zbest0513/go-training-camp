@@ -10,8 +10,7 @@ import (
 )
 
 func main() {
-	//TODO 为了方便查阅 将dao.CheckUser copy了 一份在 main.go 中
-	//TODO 的部分为我对作业的解答
+	//TODO 为了方便查阅 将dao.CheckUser copy了 一份在 main.go 中，TODO的部分为我对作业的解答
 	isExist, err := CheckUser("张三")
 	if err != nil {
 		log.Println("请求异常")
