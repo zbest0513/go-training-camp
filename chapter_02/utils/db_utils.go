@@ -52,7 +52,10 @@ func QueryList(target interface{}, where *WhereGenerator, scans ...string) ([]in
 	if err != nil {
 		return nil, err, 0
 	}
-	defer query.Close()
+	defer func() {
+		e := query.Close()
+		log.Println(fmt.Sprintf("db query close error %+v", e))
+	}()
 
 	//默认20行，超过20行会动态扩容切片
 	result := make([]interface{}, 20, 20)
@@ -79,7 +82,7 @@ func QueryList(target interface{}, where *WhereGenerator, scans ...string) ([]in
 	if err != nil {
 		return nil, err, count
 	}
-	log.Println(fmt.Sprintf("query list result : %s", result[0:count]))
+	log.Println(fmt.Sprintf("query list result : %s,count : %v", result[0:count], count))
 	return result[0:count], nil, count
 }
 

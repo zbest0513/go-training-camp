@@ -1,50 +1,30 @@
 package main
 
 import (
-	"chapter_02/model"
-	"chapter_02/utils"
 	"fmt"
 	"log"
 )
 
 func main() {
-	userCase2()
+
+	execute(useCase1)
+
 }
 
-func userCase1() {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println(fmt.Sprintf("%+v\n", r))
-		}
-	}()
-
-	user := model.User{Name: "lisi"}
-	where := new(utils.WhereGenerator).NewInstance().And("name").Equals(user.Name).And("age").Equals(22)
-
-	one, err := utils.QueryOne(&user, where, "name", "age")
-	if err != nil {
-		log.Println(fmt.Sprintf("%+v\n", err))
-	}
-	log.Fatalf("result : %+v", one)
+func execute(useCase func()) {
+	//每个请求都在入口把panic catch住
+	//避免一个请求影响整个server进程
+	defer catch()
+	//执行函数
+	useCase()
 }
 
-func userCase2() {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println(fmt.Sprintf("%+v\n", r))
-		}
-	}()
+func useCase1() {
+	log.Println("-----------")
+}
 
-	user := new(model.User)
-	user.Age = 22
-	where := new(utils.WhereGenerator).NewInstance().And("age").Equals(22)
-
-	list, err, count := utils.QueryList(user, where)
-	if err != nil {
-		log.Println(fmt.Sprintf("%+v\n", err))
+func catch() {
+	if r := recover(); r != nil {
+		log.Println(fmt.Sprintf("%+v\n", r))
 	}
-	for i, item := range list {
-		log.Println(fmt.Sprintf("result : %+v , i:%v", item, i))
-	}
-	log.Println(fmt.Sprintf("count:%v", count))
 }
