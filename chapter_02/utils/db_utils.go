@@ -97,9 +97,13 @@ func QueryList(target interface{}, where *WhereGenerator, scans ...string) ([]in
 func UpdateModels(target interface{}, where *WhereGenerator, sets []string) (int64, error) {
 	defer deferError("update model method error")
 	generate, values := updateSqlGenerate(target, where.Sql(), sets)
-	stm, _ := db.Prepare(generate)
+	stm, err := db.Prepare(generate)
+	if err != nil {
+		return 0, err
+	}
 	defer func() {
-		stm.Close()
+		err := stm.Close()
+		log.Println(fmt.Sprintf("stm close err :%+v", err))
 	}()
 	result, err := stm.Exec(values...)
 	if err != nil {
@@ -129,6 +133,28 @@ func InsertModels(target ...interface{}) (int64, error) {
 		return 0, err
 	}
 	count, err := exec.RowsAffected()
+	if err != nil {
+		return count, err
+	}
+	return count, nil
+}
+
+// DeleteModels
+// 删除
+// 参数说明:
+//	target:条件载体，用户反射/填充等操作
+//	where:where条件生成器,用于生成where条件
+// 返回说明:
+//	int64:更新生效的条目数量
+//	error:异常信息
+func DeleteModels(target interface{}, where *WhereGenerator) (int64, error) {
+	defer deferError("delete model method error")
+	generate := deleteSqlGenerate(target, where.Sql())
+	result, err := db.Exec(generate)
+	if err != nil {
+		return 0, err
+	}
+	count, err := result.RowsAffected()
 	if err != nil {
 		return count, err
 	}

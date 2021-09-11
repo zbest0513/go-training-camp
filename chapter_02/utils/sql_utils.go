@@ -182,6 +182,22 @@ func insertSqlGenerate(models ...interface{}) string {
 	return sql
 }
 
+// delete sql生成
+// 参数说明:
+//	target : 要删除的实体指针，用于反射得到表名
+//	where : 用户生成update条件字符串
+// 返回说明:
+//	str : 返回生成的sql
+
+func deleteSqlGenerate(target interface{}, where string) string {
+	defer deferError(" delete sql generate error")
+	name := strings.ToLower(reflect.TypeOf(target).String())
+	split := strings.Split(name, ".")
+	sql := fmt.Sprintf("delete from %s %s ", split[len(split)-1], where)
+	log.Println(fmt.Sprintf("生成sql:%v", sql))
+	return sql
+}
+
 func isExist(fields []string, target string) bool {
 	for _, field := range fields {
 		if field == target {

@@ -62,3 +62,15 @@ func TestInsert(t *testing.T) {
 	}
 	log.Println(fmt.Sprintf("执行插入%v条成功", count))
 }
+
+func TestDelete(t *testing.T) {
+	user := new(model.User)
+	user.Card = "33333333333"
+
+	where := new(utils.WhereGenerator).NewInstance().And("card").Equals(user.Card)
+	count, err := utils.DeleteModels(user, where)
+	if err != nil {
+		log.Println(fmt.Sprintf("处理异常....%+v", err))
+	}
+	log.Println(fmt.Sprintf("执行删除%v条成功", count))
+}
