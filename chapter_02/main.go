@@ -19,9 +19,9 @@ func userCase1() {
 	}()
 
 	user := model.User{Name: "lisi"}
-	where := new(utils.WhereGenerator).NewInstance().And("name").Equals(user.Name).And("age").Equals(12)
+	where := new(utils.WhereGenerator).NewInstance().And("name").Equals(user.Name).And("age").Equals(22)
 
-	one, err := utils.QueryOne(&user, where, "name")
+	one, err := utils.QueryOne(&user, where, "name", "age")
 	if err != nil {
 		log.Println(fmt.Sprintf("%+v\n", err))
 	}
@@ -39,9 +39,12 @@ func userCase2() {
 	user.Age = 22
 	where := new(utils.WhereGenerator).NewInstance().And("age").Equals(22)
 
-	list, err, i := utils.QueryList(user, where)
+	list, err, count := utils.QueryList(user, where)
 	if err != nil {
 		log.Println(fmt.Sprintf("%+v\n", err))
 	}
-	log.Fatalf("result : %+v , count:%v", list, i)
+	for i, item := range list {
+		log.Println(fmt.Sprintf("result : %+v , i:%v", item, i))
+	}
+	log.Println(fmt.Sprintf("count:%v", count))
 }

@@ -19,7 +19,7 @@ import (
 func QueryOne(target interface{}, where *WhereGenerator, scans ...string) (interface{}, error) {
 	defer deferError("query one method error")
 	//生成sql
-	sql := queryOneSqlGenerate(target, where.Sql(), scans...)
+	sql := querySqlGenerate(target, where.Sql(), scans...)
 
 	//获取要填充的字段
 	values := getScanValues(target, scans...)
@@ -45,7 +45,7 @@ func QueryOne(target interface{}, where *WhereGenerator, scans ...string) (inter
 func QueryList(target interface{}, where *WhereGenerator, scans ...string) ([]interface{}, error, int) {
 	defer deferError("query list method error")
 	//生成sql
-	sql := queryOneSqlGenerate(target, where.Sql(), scans...)
+	sql := querySqlGenerate(target, where.Sql(), scans...)
 	//获取数据库连接
 	db := GetConn()
 	query, err := db.Query(sql)
@@ -58,25 +58,28 @@ func QueryList(target interface{}, where *WhereGenerator, scans ...string) ([]in
 	result := make([]interface{}, 20, 20)
 	var count = 0
 	for query.Next() {
-		//每次填充需要不同的struct指针
-		st := reflect.TypeOf(target).Elem()
-		value := reflect.New(st)
 		//获取要填充的字段
-		values := getScanValues(&value, scans...)
+		values := getScanValues(target, scans...)
 		err = query.Scan(values...)
 		//一条错误 不记录行数
 		if err != nil {
 			log.Println(fmt.Sprintf("扫描记录失败:%+v", err))
 			continue
 		}
-		result[count] = st
+		//每次填充需要不同的struct指针
+		st := reflect.ValueOf(target)
+		param := make([]reflect.Value, 1, 1)
+		param[0] = reflect.ValueOf(target)
+		calls := st.MethodByName("New").Call(param)
+		value := calls[0]
+		result[count] = value
 		count++
 	}
 	err = query.Err()
 	if err != nil {
 		return nil, err, count
 	}
-	log.Println(fmt.Sprintf("query list result : %v", result[0:count]))
+	log.Println(fmt.Sprintf("query list result : %s", result[0:count]))
 	return result[0:count], nil, count
 }
 
@@ -90,17 +93,24 @@ func QueryList(target interface{}, where *WhereGenerator, scans ...string) ([]in
 
 func getScanValues(target interface{}, scans ...string) []interface{} {
 	defer deferError("scan values reflect error")
-	elem := reflect.TypeOf(target).Elem()
+	elem := reflect.TypeOf(target)
+	if elem.Kind() == reflect.Ptr {
+		elem = elem.Elem()
+	}
 	num := len(scans)
 	var flag bool
 	if flag = num > 0; !flag {
 		num = elem.NumField()
 	}
-	value := reflect.ValueOf(target).Elem()
+	value := reflect.ValueOf(target)
+	if value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
 	values := make([]interface{}, num, num)
 	var tmp = 0
 	for i := 0; i < elem.NumField(); i++ {
-		field := elem.Field(i).Tag.Get("model")
+		var field string
+		field = elem.Field(i).Tag.Get("model")
 		if !flag || (flag && isExist(scans, field)) {
 			values[tmp] = value.FieldByName(elem.Field(i).Name).Addr().Interface()
 			//将原有对象中的条件置为空，避免污染返回
@@ -112,7 +122,7 @@ func getScanValues(target interface{}, scans ...string) []interface{} {
 	return values
 }
 
-// 单条查询sql生成
+// 查询sql生成
 // 参数说明:
 //	target : 要查询的实体指针，用于反射得到表名、表字段和struct属性的映射
 //	where : 用户生成查询条件字符串
@@ -121,7 +131,7 @@ func getScanValues(target interface{}, scans ...string) []interface{} {
 //	str : 返回生成的sql
 //	err : 将errors 和panic 统一上抛处理（error wrap处理/panic 转 error）
 
-func queryOneSqlGenerate(target interface{}, where string, scans ...string) string {
+func querySqlGenerate(target interface{}, where string, scans ...string) string {
 	defer deferError("query sql generate error")
 	elem := reflect.TypeOf(target).Elem()
 	name := strings.ToLower(reflect.TypeOf(target).String())
@@ -143,7 +153,7 @@ func queryOneSqlGenerate(target interface{}, where string, scans ...string) stri
 		}
 	}
 	join := strings.Join(search, ",")
-	sql := fmt.Sprintf(fmt.Sprintf("select %s from %s %s limit 1", join, split[len(split)-1], where), tags...)
+	sql := fmt.Sprintf(fmt.Sprintf("select %s from %s %s ", join, split[len(split)-1], where), tags...)
 	log.Println(fmt.Sprintf("生成sql:%v", sql))
 	return sql
 }
