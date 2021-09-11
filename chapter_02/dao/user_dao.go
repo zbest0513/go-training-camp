@@ -17,13 +17,13 @@ func CheckUser(name string) (bool, error) {
 	where := new(utils.WhereGenerator).NewInstance().And("name").Equals(user.Name)
 	//查询用户
 	_, err := utils.QueryOne(user, where)
-	if errors.Is(err, sql.ErrNoRows) { //用户不存在属于业务异常，不应该warp工具包内的异常栈
+	if errors.Is(err, sql.ErrNoRows) { //TODO 用户不存在属于业务异常，不应该warp工具包内的异常栈
 		return false, nil
-	} else if err != nil { //非业务异常，应该将异常栈带上，顶部catch到可以统一打印，便于查看错误
+	} else if err != nil { //TODO 非业务异常，应该将异常栈带上，顶部catch到可以统一打印，便于查看错误
 		var errMsg error
-		if xerrors.Cause(err) == err { //根因,wrap 携带错误堆栈
+		if xerrors.Cause(err) == err { //TODO 根因,wrap 携带错误堆栈
 			errMsg = xerrors.Wrap(err, "method : CheckUser execute QueryOne error ")
-		} else { //非根因用with message
+		} else { //TODO 非根因用with message
 			errMsg = xerrors.WithMessage(err, "method : CheckUser execute QueryOne error ")
 		}
 		return false, errMsg
