@@ -130,30 +130,54 @@ func updateSqlGenerate(target interface{}, where string, sets []string) (string,
 func insertSqlGenerate(models ...interface{}) string {
 	defer deferError(" insert sql generate error")
 
-	target := models[0]
-	elem := reflect.TypeOf(target).Elem()
-	name := strings.ToLower(reflect.TypeOf(target).String())
-	split := strings.Split(name, ".")
+	var pre string
 
-	num := elem.NumField()
-	tags := make([]string, num, num)
-	values := make([]interface{}, num, num)
-	value := reflect.ValueOf(target).Elem()
-	var tmp = 0
-	for i := 0; i < elem.NumField(); i++ {
-		v := value.FieldByName(name)
-		name := elem.Field(i).Name
-		log.Println(fmt.Sprintf("============%v", v.IsNil()))
-		if name == "Id" && v.CanInterface() == false {
-			continue
+	var table string
+
+	count := len(models)
+
+	vs := make([]string, count, count)
+
+	for j, model := range models {
+		target := model
+		elem := reflect.TypeOf(target).Elem()
+		name := strings.ToLower(reflect.TypeOf(target).String())
+		split := strings.Split(name, ".")
+		if len(table) == 0 {
+			table = split[len(split)-1]
 		}
-		field := elem.Field(i).Tag.Get("model")
-		tags[tmp] = field
-		values[tmp] = fmt.Sprintf("'%v'", v.Interface())
-		tmp++
+		num := elem.NumField()
+		value := reflect.ValueOf(target).Elem()
+
+		if value.FieldByName("Id").IsZero() {
+			num = num - 1
+		}
+
+		value.FieldByName(name)
+		tags := make([]string, num, num)
+		values := make([]string, num, num)
+
+		var tmp = 0
+		for i := 0; i < elem.NumField(); i++ {
+			name := elem.Field(i).Name
+			v := value.FieldByName(name)
+			if name == "Id" && v.IsZero() {
+				continue
+			}
+			field := elem.Field(i).Tag.Get("model")
+			tags[tmp] = field
+			values[tmp] = fmt.Sprintf("'%v'", v.Interface())
+			tmp++
+		}
+		if len(pre) == 0 {
+			pre = strings.Join(tags, ",")
+		}
+		vs[j] = fmt.Sprintf("(%s)", strings.Join(values, ","))
 	}
-	join := strings.Join(tags, ",")
-	sql := fmt.Sprintf(fmt.Sprintf("insert into %s (%s) values (%s) ", split[len(split)-1], join, values))
+
+	join := strings.Join(vs, ",")
+
+	sql := fmt.Sprintf(fmt.Sprintf("insert into %s (%s) values %s ", table, pre, join))
 	log.Println(fmt.Sprintf("生成sql:%v", sql))
 	return sql
 }

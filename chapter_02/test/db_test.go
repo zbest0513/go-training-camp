@@ -56,7 +56,7 @@ func TestInsert(t *testing.T) {
 	user.Card = "33333333333"
 	user.Name = "zzz"
 
-	count, err := utils.InsertModels(user)
+	count, err := utils.InsertModels(user, user)
 	if err != nil {
 		log.Println(fmt.Sprintf("处理异常....%+v", err))
 	}
