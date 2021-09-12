@@ -54,7 +54,6 @@ func TestInsert(t *testing.T) {
 	user.Age = 23
 	user.Card = "33333333333"
 	user.Name = "zzz"
-
 	count, err := new(utils.DBUtils).InsertModels(user, user)
 	if err != nil {
 		log.Println(fmt.Sprintf("处理异常....%+v", err))
@@ -73,4 +72,20 @@ func TestDelete(t *testing.T) {
 		log.Println(fmt.Sprintf("处理异常....%+v", err))
 	}
 	log.Println(fmt.Sprintf("执行删除%v条成功", count))
+}
+
+func TestTrans(t *testing.T) {
+
+	user := new(model.User)
+	user.Age = 23
+	user.Card = "444444444"
+	user.Name = "kkkkk"
+
+	db := new(utils.DBUtils)
+	var insert = db.InsertModels
+	users := []interface{}{user, user}
+	executor := new(utils.TransTaskExecutor).NewInsertTaskExecutor(insert, users)
+
+	db.TxExec(executor)
+
 }

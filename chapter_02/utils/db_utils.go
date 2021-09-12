@@ -49,7 +49,7 @@ func (receiver *DBUtils) QueryList(target interface{}, where *WhereGenerator, sc
 //	int64:更新生效的条目数量
 //	error:异常信息
 func (receiver *DBUtils) UpdateModels(target interface{}, where *WhereGenerator, sets []string) (int64, error) {
-	return updateModels(false, receiver, target, where, sets)
+	return updateModels(receiver, target, where, sets)
 }
 
 // InsertModels
@@ -62,7 +62,7 @@ func (receiver *DBUtils) UpdateModels(target interface{}, where *WhereGenerator,
 //	int64:插入生效的条目
 //	error:异常信息
 func (receiver *DBUtils) InsertModels(target ...interface{}) (int64, error) {
-	return insertModels(false, receiver, target...)
+	return insertModels(receiver, target...)
 }
 
 // DeleteModels
@@ -74,19 +74,30 @@ func (receiver *DBUtils) InsertModels(target ...interface{}) (int64, error) {
 //	int64:更新生效的条目数量
 //	error:异常信息
 func (receiver *DBUtils) DeleteModels(target interface{}, where *WhereGenerator) (int64, error) {
-	return deleteModels(false, receiver, target, where)
+	return deleteModels(receiver, target, where)
 }
 
 //TxExec
 // 支持事务执行
 // method 可传入update、insert、delete函数
-func (receiver *DBUtils) TxExec(methods ...func(...interface{}) (int64, error)) {
+func (receiver *DBUtils) TxExec(executors ...*TransTaskExecutor) (int64, error) {
+	receiver.isTrans = true
 	receiver.tx, receiver.msg = GetConn().Begin()
-	//TODO xxx
-	for _, method := range methods {
-		method()
+	var result int64 = 0
+	for _, execute := range executors {
+		count, err := execute.exec(receiver)
+		if err != nil {
+			receiver.tx.Rollback()
+			return count, err
+		}
+		result += count
 	}
-
+	err := receiver.tx.Commit()
+	if err != nil {
+		receiver.tx.Rollback()
+		return result, err
+	}
+	return result, nil
 }
 
 func queryOne(target interface{}, where *WhereGenerator, scans ...string) (interface{}, error) {
@@ -150,23 +161,20 @@ func queryList(target interface{}, where *WhereGenerator, scans ...string) ([]in
 	return result[0:count], nil, count
 }
 
-func updateModels(isTrans bool, dbUtils *DBUtils, target interface{}, where *WhereGenerator, sets []string) (int64, error) {
+func updateModels(dbUtils *DBUtils, target interface{}, where *WhereGenerator, sets []string) (int64, error) {
 	defer deferError("update model method error")
 	generate, values := updateSqlGenerate(target, where.Sql(), sets)
 
 	var stm *sql.Stmt
 	var err error
 
-	if isTrans {
+	if dbUtils.isTrans {
 		stm, err = dbUtils.tx.Prepare(generate)
 	} else {
 		stm, err = db.Prepare(generate)
 	}
 
 	if err != nil {
-		if isTrans {
-			dbUtils.tx.Rollback()
-		}
 		return 0, err
 	}
 	defer func() {
@@ -177,12 +185,6 @@ func updateModels(isTrans bool, dbUtils *DBUtils, target interface{}, where *Whe
 	if err != nil {
 		return 0, err
 	}
-	if isTrans {
-		err = dbUtils.tx.Commit()
-		if err != nil {
-			return 0, err
-		}
-	}
 	count, err := result.RowsAffected()
 	if err != nil {
 		return count, err
@@ -190,58 +192,91 @@ func updateModels(isTrans bool, dbUtils *DBUtils, target interface{}, where *Whe
 	return count, nil
 }
 
-func insertModels(isTrans bool, dbUtils *DBUtils, target ...interface{}) (int64, error) {
+func insertModels(dbUtils *DBUtils, target ...interface{}) (int64, error) {
 	defer deferError("insert model method error")
 	generate := insertSqlGenerate(target...)
 	var exec sql.Result
 	var err error
-	if isTrans {
+	if dbUtils.isTrans {
 		exec, err = dbUtils.tx.Exec(generate)
-		err = dbUtils.tx.Commit()
 	} else {
 		exec, err = db.Exec(generate)
 	}
-
 	if err != nil {
-		if isTrans {
-			dbUtils.tx.Rollback()
-		}
 		return 0, err
 	}
 	count, err := exec.RowsAffected()
 	if err != nil {
-		if isTrans {
-			dbUtils.tx.Rollback()
-		}
 		return count, err
 	}
 	return count, nil
 }
 
-func deleteModels(isTrans bool, dbUtils *DBUtils, target interface{}, where *WhereGenerator) (int64, error) {
+func deleteModels(dbUtils *DBUtils, target interface{}, where *WhereGenerator) (int64, error) {
 	defer deferError("delete model method error")
 	generate := deleteSqlGenerate(target, where.Sql())
 
 	var result sql.Result
 	var err error
-	if isTrans {
+	if dbUtils.isTrans {
 		result, err = dbUtils.tx.Exec(generate)
-		dbUtils.tx.Commit()
 	} else {
 		result, err = db.Exec(generate)
 	}
 	if err != nil {
-		if isTrans {
-			dbUtils.tx.Rollback()
-		}
 		return 0, err
 	}
 	count, err := result.RowsAffected()
 	if err != nil {
-		if isTrans {
-			dbUtils.tx.Rollback()
-		}
 		return count, err
 	}
 	return count, nil
+}
+
+type TransTaskExecutor struct {
+	method func(...interface{}) (int64, error)
+	args   []interface{}
+}
+
+func (receiver *TransTaskExecutor) exec(db *DBUtils) (int64, error) {
+	receiver.args[1] = db
+	return receiver.method(receiver.args)
+}
+
+func (receiver *TransTaskExecutor) NewUpdateTaskExecutor(method func(...interface{}) (int64, error), target interface{}, where *WhereGenerator, sets []string) *TransTaskExecutor {
+	args := make([]interface{}, 3, 3)
+	args[0] = true
+	args[2] = target
+	args[3] = where
+	args[4] = sets
+
+	return &TransTaskExecutor{
+		args:   args,
+		method: method,
+	}
+}
+
+func (receiver *TransTaskExecutor) NewInsertTaskExecutor(method func(...interface{}) (int64, error), target ...interface{}) *TransTaskExecutor {
+
+	args := make([]interface{}, 3, 3)
+	args[0] = true
+	args[2] = target
+
+	return &TransTaskExecutor{
+		args:   args,
+		method: method,
+	}
+}
+
+func (receiver *TransTaskExecutor) NewDeleteTaskExecutor(method func(...interface{}) (int64, error), target interface{}, where *WhereGenerator) *TransTaskExecutor {
+
+	args := make([]interface{}, 4, 4)
+	args[0] = true
+	args[2] = target
+	args[3] = where
+
+	return &TransTaskExecutor{
+		args:   args,
+		method: method,
+	}
 }
