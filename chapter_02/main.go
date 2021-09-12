@@ -31,7 +31,7 @@ func CheckUser(name string) (bool, error) {
 	user.Name = name
 	where := new(utils.WhereGenerator).NewInstance().And("name").Equals(user.Name)
 	//查询用户
-	_, err := utils.QueryOne(user, where)
+	_, err := new(utils.DBUtils).QueryOne(user, where)
 	if errors.Is(err, sql.ErrNoRows) { //TODO 用户不存在属于业务异常，不应该warp工具包内的异常栈
 		return false, nil
 	} else if err != nil { //TODO 非业务异常，应该将异常栈带上，顶部catch到可以统一打印，便于查看错误

@@ -1,7 +1,6 @@
 package test
 
 import (
-	zerror "chapter_02/error"
 	"chapter_02/model"
 	"chapter_02/utils"
 	"database/sql"
@@ -16,9 +15,9 @@ func TestQueryOne(t *testing.T) {
 	where := new(utils.WhereGenerator).NewInstance().And(
 		"name").Equals(user.Name).And("age").Equals(55)
 
-	one, err := utils.QueryOne(&user, where, "card", "name", "age")
+	one, err := new(utils.DBUtils).QueryOne(&user, where, "card", "name", "age")
 	if errors.Is(err, sql.ErrNoRows) {
-		panic(zerror.UserNotFound)
+		//panic(zerror.UserNotFound)
 	} else if err != nil {
 		log.Println(fmt.Sprintf("%+v", err))
 	}
@@ -30,7 +29,7 @@ func TestQueryList(t *testing.T) {
 	user.Age = 22
 	where := new(utils.WhereGenerator).NewInstance().And("age").Equals(22)
 
-	list, err, _ := utils.QueryList(user, where)
+	list, err, _ := new(utils.DBUtils).QueryList(user, where)
 	if err != nil {
 		log.Println(fmt.Sprintf("%+v\n", err))
 	}
@@ -43,7 +42,7 @@ func TestUpdateModel(t *testing.T) {
 	user := new(model.User)
 	user.Age = 23
 	where := new(utils.WhereGenerator).NewInstance().And("age").Equals(12)
-	count, err := utils.UpdateModels(user, where, []string{"age"})
+	count, err := new(utils.DBUtils).UpdateModels(user, where, []string{"age"})
 	if err != nil {
 		log.Println(fmt.Sprintf("处理异常....%+v", err))
 	}
@@ -56,7 +55,7 @@ func TestInsert(t *testing.T) {
 	user.Card = "33333333333"
 	user.Name = "zzz"
 
-	count, err := utils.InsertModels(user, user)
+	count, err := new(utils.DBUtils).InsertModels(user, user)
 	if err != nil {
 		log.Println(fmt.Sprintf("处理异常....%+v", err))
 	}
@@ -67,8 +66,9 @@ func TestDelete(t *testing.T) {
 	user := new(model.User)
 	user.Card = "33333333333"
 
+	dbUtils := new(utils.DBUtils)
 	where := new(utils.WhereGenerator).NewInstance().And("card").Equals(user.Card)
-	count, err := utils.DeleteModels(user, where)
+	count, err := dbUtils.DeleteModels(user, where)
 	if err != nil {
 		log.Println(fmt.Sprintf("处理异常....%+v", err))
 	}

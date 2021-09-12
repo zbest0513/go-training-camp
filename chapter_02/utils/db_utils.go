@@ -1,10 +1,17 @@
 package utils
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"reflect"
 )
+
+type DBUtils struct {
+	isTrans bool    //是否开启事务
+	tx      *sql.Tx //事务管理器
+	msg     error   //错误信息
+}
 
 //QueryOne
 // 查询单条记录
@@ -15,7 +22,74 @@ import (
 // 返回说明:
 //	interface:检索到的条目
 //	error:异常信息
-func QueryOne(target interface{}, where *WhereGenerator, scans ...string) (interface{}, error) {
+func (receiver *DBUtils) QueryOne(target interface{}, where *WhereGenerator, scans ...string) (interface{}, error) {
+	return queryOne(target, where, scans...)
+}
+
+//QueryList
+// 查询列表
+// 参数说明:
+//	target:条件载体，用户反射/填充等操作
+//	where:where条件生成器,用于生成where条件
+//	scan:需要检索的字段
+// 返回说明:
+//	[]interface:检索到的条目切片
+//	error:异常信息
+func (receiver *DBUtils) QueryList(target interface{}, where *WhereGenerator, scans ...string) ([]interface{}, error, int) {
+	return queryList(target, where, scans...)
+}
+
+// UpdateModels
+// 查询列表
+// 参数说明:
+//	target:条件载体，用户反射/填充等操作
+//	where:where条件生成器,用于生成where条件
+//	sets:需要修改的字段,必传
+// 返回说明:
+//	int64:更新生效的条目数量
+//	error:异常信息
+func (receiver *DBUtils) UpdateModels(target interface{}, where *WhereGenerator, sets []string) (int64, error) {
+	return updateModels(false, receiver, target, where, sets)
+}
+
+// InsertModels
+// 查询列表
+// 参数说明:
+//	target:条件载体，用户反射/填充等操作
+//	where:where条件生成器,用于生成where条件
+//	sets:需要修改的字段,必传
+// 返回说明:
+//	int64:插入生效的条目
+//	error:异常信息
+func (receiver *DBUtils) InsertModels(target ...interface{}) (int64, error) {
+	return insertModels(false, receiver, target...)
+}
+
+// DeleteModels
+// 删除
+// 参数说明:
+//	target:条件载体，用户反射/填充等操作
+//	where:where条件生成器,用于生成where条件
+// 返回说明:
+//	int64:更新生效的条目数量
+//	error:异常信息
+func (receiver *DBUtils) DeleteModels(target interface{}, where *WhereGenerator) (int64, error) {
+	return deleteModels(false, receiver, target, where)
+}
+
+//TxExec
+// 支持事务执行
+// method 可传入update、insert、delete函数
+func (receiver *DBUtils) TxExec(methods ...func(...interface{}) (int64, error)) {
+	receiver.tx, receiver.msg = GetConn().Begin()
+	//TODO xxx
+	for _, method := range methods {
+		method()
+	}
+
+}
+
+func queryOne(target interface{}, where *WhereGenerator, scans ...string) (interface{}, error) {
 	defer deferError("query one method error")
 	//生成sql
 	sql := querySqlGenerate(target, where.Sql(), scans...)
@@ -32,16 +106,7 @@ func QueryOne(target interface{}, where *WhereGenerator, scans ...string) (inter
 	return target, nil
 }
 
-//QueryList
-// 查询列表
-// 参数说明:
-//	target:条件载体，用户反射/填充等操作
-//	where:where条件生成器,用于生成where条件
-//	scan:需要检索的字段
-// 返回说明:
-//	[]interface:检索到的条目切片
-//	error:异常信息
-func QueryList(target interface{}, where *WhereGenerator, scans ...string) ([]interface{}, error, int) {
+func queryList(target interface{}, where *WhereGenerator, scans ...string) ([]interface{}, error, int) {
 	defer deferError("query list method error")
 	//生成sql
 	sql := querySqlGenerate(target, where.Sql(), scans...)
@@ -85,20 +150,23 @@ func QueryList(target interface{}, where *WhereGenerator, scans ...string) ([]in
 	return result[0:count], nil, count
 }
 
-// UpdateModels
-// 查询列表
-// 参数说明:
-//	target:条件载体，用户反射/填充等操作
-//	where:where条件生成器,用于生成where条件
-//	sets:需要修改的字段,必传
-// 返回说明:
-//	int64:更新生效的条目数量
-//	error:异常信息
-func UpdateModels(target interface{}, where *WhereGenerator, sets []string) (int64, error) {
+func updateModels(isTrans bool, dbUtils *DBUtils, target interface{}, where *WhereGenerator, sets []string) (int64, error) {
 	defer deferError("update model method error")
 	generate, values := updateSqlGenerate(target, where.Sql(), sets)
-	stm, err := db.Prepare(generate)
+
+	var stm *sql.Stmt
+	var err error
+
+	if isTrans {
+		stm, err = dbUtils.tx.Prepare(generate)
+	} else {
+		stm, err = db.Prepare(generate)
+	}
+
 	if err != nil {
+		if isTrans {
+			dbUtils.tx.Rollback()
+		}
 		return 0, err
 	}
 	defer func() {
@@ -109,6 +177,12 @@ func UpdateModels(target interface{}, where *WhereGenerator, sets []string) (int
 	if err != nil {
 		return 0, err
 	}
+	if isTrans {
+		err = dbUtils.tx.Commit()
+		if err != nil {
+			return 0, err
+		}
+	}
 	count, err := result.RowsAffected()
 	if err != nil {
 		return count, err
@@ -116,46 +190,57 @@ func UpdateModels(target interface{}, where *WhereGenerator, sets []string) (int
 	return count, nil
 }
 
-// InsertModels
-// 查询列表
-// 参数说明:
-//	target:条件载体，用户反射/填充等操作
-//	where:where条件生成器,用于生成where条件
-//	sets:需要修改的字段,必传
-// 返回说明:
-//	int64:插入生效的条目
-//	error:异常信息
-func InsertModels(target ...interface{}) (int64, error) {
+func insertModels(isTrans bool, dbUtils *DBUtils, target ...interface{}) (int64, error) {
 	defer deferError("insert model method error")
-	sql := insertSqlGenerate(target...)
-	exec, err := db.Exec(sql)
+	generate := insertSqlGenerate(target...)
+	var exec sql.Result
+	var err error
+	if isTrans {
+		exec, err = dbUtils.tx.Exec(generate)
+		err = dbUtils.tx.Commit()
+	} else {
+		exec, err = db.Exec(generate)
+	}
+
 	if err != nil {
+		if isTrans {
+			dbUtils.tx.Rollback()
+		}
 		return 0, err
 	}
 	count, err := exec.RowsAffected()
 	if err != nil {
+		if isTrans {
+			dbUtils.tx.Rollback()
+		}
 		return count, err
 	}
 	return count, nil
 }
 
-// DeleteModels
-// 删除
-// 参数说明:
-//	target:条件载体，用户反射/填充等操作
-//	where:where条件生成器,用于生成where条件
-// 返回说明:
-//	int64:更新生效的条目数量
-//	error:异常信息
-func DeleteModels(target interface{}, where *WhereGenerator) (int64, error) {
+func deleteModels(isTrans bool, dbUtils *DBUtils, target interface{}, where *WhereGenerator) (int64, error) {
 	defer deferError("delete model method error")
 	generate := deleteSqlGenerate(target, where.Sql())
-	result, err := db.Exec(generate)
+
+	var result sql.Result
+	var err error
+	if isTrans {
+		result, err = dbUtils.tx.Exec(generate)
+		dbUtils.tx.Commit()
+	} else {
+		result, err = db.Exec(generate)
+	}
 	if err != nil {
+		if isTrans {
+			dbUtils.tx.Rollback()
+		}
 		return 0, err
 	}
 	count, err := result.RowsAffected()
 	if err != nil {
+		if isTrans {
+			dbUtils.tx.Rollback()
+		}
 		return count, err
 	}
 	return count, nil
