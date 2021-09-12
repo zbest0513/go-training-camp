@@ -239,8 +239,7 @@ type TransTaskExecutor struct {
 }
 
 func (receiver *TransTaskExecutor) exec(db *DBUtils) (int64, error) {
-	receiver.args[1] = db
-	return receiver.method(receiver.args)
+	return receiver.method(db, receiver.args)
 }
 
 func (receiver *TransTaskExecutor) NewUpdateTaskExecutor(method func(...interface{}) (int64, error), target interface{}, where *WhereGenerator, sets []string) *TransTaskExecutor {
@@ -257,11 +256,11 @@ func (receiver *TransTaskExecutor) NewUpdateTaskExecutor(method func(...interfac
 }
 
 func (receiver *TransTaskExecutor) NewInsertTaskExecutor(method func(...interface{}) (int64, error), target ...interface{}) *TransTaskExecutor {
-
-	args := make([]interface{}, 3, 3)
-	args[0] = true
-	args[2] = target
-
+	count := len(target)
+	args := make([]interface{}, count, count)
+	for i := 0; i < count; i++ {
+		args[i] = target[i]
+	}
 	return &TransTaskExecutor{
 		args:   args,
 		method: method,

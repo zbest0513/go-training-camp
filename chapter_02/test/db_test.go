@@ -83,8 +83,7 @@ func TestTrans(t *testing.T) {
 
 	db := new(utils.DBUtils)
 	var insert = db.InsertModels
-	users := []interface{}{user, user}
-	executor := new(utils.TransTaskExecutor).NewInsertTaskExecutor(insert, users)
+	executor := new(utils.TransTaskExecutor).NewInsertTaskExecutor(insert, user, user)
 
 	db.TxExec(executor)
 
