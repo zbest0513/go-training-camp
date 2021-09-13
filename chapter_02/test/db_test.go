@@ -54,7 +54,8 @@ func TestInsert(t *testing.T) {
 	user.Age = 23
 	user.Card = "33333333333"
 	user.Name = "zzz"
-	count, err := new(utils.DBUtils).InsertModels(user, user)
+	users := []interface{}{user, user}
+	count, err := new(utils.DBUtils).InsertModels(users)
 	if err != nil {
 		log.Println(fmt.Sprintf("处理异常....%+v", err))
 	}
@@ -83,8 +84,22 @@ func TestTrans(t *testing.T) {
 
 	db := new(utils.DBUtils)
 	var insert = db.InsertModels
-	executor := new(utils.TransTaskExecutor).NewInsertTaskExecutor(insert, user, user)
 
-	db.TxExec(executor)
+	users := []interface{}{user, user}
+	executor := new(utils.TransInsertTaskExecutor).NewInsertTaskExecutor(insert, users)
 
+	var update = db.UpdateModels
+	where := new(utils.WhereGenerator).NewInstance().And("card").Equals("444444444")
+
+	user2 := new(model.User)
+	user2.Card = "9999888"
+
+	executor2 := new(utils.TransUpdateTaskExecutor).NewUpdateTaskExecutor(update, user2, where, []string{"card"})
+
+	//var delete = db.DeleteModels
+	//where2 := new(utils.WhereGenerator).NewInstance().And("card").Equals("9999888")
+	//
+	//executor3 := new(utils.TransDeleteTaskExecutor).NewDeleteTaskExecutor(delete, user, where2)
+
+	db.TxExec(executor, executor2)
 }
