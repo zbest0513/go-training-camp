@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"log"
 	"net/http"
 	"os"
@@ -17,7 +19,7 @@ func server(ctx context.Context, wg *sync.WaitGroup, port string) {
 	log.Println(fmt.Sprintf("listen port :%s", port))
 	select {
 	case <-ctx.Done():
-		log.Println(fmt.Sprintf("listen port :%s done ......", port))
+		log.Println(fmt.Sprintf("listen port :%s shutdown ......", port))
 	}
 }
 func signalHandle(f func()) {
@@ -31,7 +33,8 @@ func signalHandle(f func()) {
 }
 
 func main() {
-	WaitGroupVersion() //wait group 实现的版本
+	//WaitGroupVersion() //wait group 实现的版本
+	ErrGroupVersion() //errgroup 实现的版本
 }
 
 func WaitGroupVersion() {
@@ -46,4 +49,46 @@ func WaitGroupVersion() {
 		cancelA()
 	})
 	wg.Wait()
+}
+
+func catchRuntimeException() {
+	if r := recover(); r != nil {
+		log.Println(fmt.Sprintf("catch runtime exception"))
+	}
+}
+
+func server2(ctx context.Context, port string) error {
+	//捕捉到运行时panic,忽略掉直接返回err，避免直接程序退出
+	defer catchRuntimeException()
+	var err = errors.New("listen server run time exception")
+	g2, _ := errgroup.WithContext(ctx)
+	log.Println(fmt.Sprintf("listen port :%s", port))
+	g2.Go(func() error {
+		err2 := http.ListenAndServe(port, nil)
+		log.Println(fmt.Sprintf("http err :%v", err2))
+		return err2
+	})
+	select {
+	case <-ctx.Done():
+		log.Println(fmt.Sprintf("listen port :%s shutdown ......", port))
+	}
+	//err = g2.Wait()
+	return err
+}
+
+func ErrGroupVersion() {
+	ctx, ctxCancel := context.WithCancel(context.Background())
+	g, ctxG := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		return server2(ctxG, ":8081")
+	})
+	g.Go(func() error {
+		return server2(ctxG, ":8082")
+	})
+	//监控kill信号
+	go signalHandle(func() {
+		ctxCancel()
+	})
+
+	g.Wait()
 }
