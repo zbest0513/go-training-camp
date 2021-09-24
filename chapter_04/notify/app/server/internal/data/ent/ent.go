@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"notify-server/internal/data/ent/tag"
 	"notify-server/internal/data/ent/template"
+	"notify-server/internal/data/ent/templatetagrelation"
 	"notify-server/internal/data/ent/user"
+	"notify-server/internal/data/ent/usertagrelation"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -31,9 +33,11 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		tag.Table:      tag.ValidColumn,
-		template.Table: template.ValidColumn,
-		user.Table:     user.ValidColumn,
+		tag.Table:                 tag.ValidColumn,
+		template.Table:            template.ValidColumn,
+		templatetagrelation.Table: templatetagrelation.ValidColumn,
+		user.Table:                user.ValidColumn,
+		usertagrelation.Table:     usertagrelation.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

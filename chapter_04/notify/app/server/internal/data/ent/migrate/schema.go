@@ -12,8 +12,8 @@ var (
 	// NotifyTagColumns holds the columns for the "notify_tag" table.
 	NotifyTagColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "desc", Type: field.TypeString, Size: 300},
 		{Name: "name", Type: field.TypeString, Size: 100},
@@ -28,8 +28,8 @@ var (
 	// NotifyTemplateColumns holds the columns for the "notify_template" table.
 	NotifyTemplateColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "desc", Type: field.TypeString, Size: 300},
 		{Name: "name", Type: field.TypeString, Size: 100},
@@ -42,11 +42,21 @@ var (
 		Columns:    NotifyTemplateColumns,
 		PrimaryKey: []*schema.Column{NotifyTemplateColumns[0]},
 	}
+	// TemplateTagRelationsColumns holds the columns for the "template_tag_relations" table.
+	TemplateTagRelationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// TemplateTagRelationsTable holds the schema information for the "template_tag_relations" table.
+	TemplateTagRelationsTable = &schema.Table{
+		Name:       "template_tag_relations",
+		Columns:    TemplateTagRelationsColumns,
+		PrimaryKey: []*schema.Column{TemplateTagRelationsColumns[0]},
+	}
 	// NotifyUserColumns holds the columns for the "notify_user" table.
 	NotifyUserColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "mobile", Type: field.TypeString, Size: 11},
 		{Name: "name", Type: field.TypeString, Size: 100},
@@ -59,11 +69,23 @@ var (
 		Columns:    NotifyUserColumns,
 		PrimaryKey: []*schema.Column{NotifyUserColumns[0]},
 	}
+	// UserTagRelationsColumns holds the columns for the "user_tag_relations" table.
+	UserTagRelationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// UserTagRelationsTable holds the schema information for the "user_tag_relations" table.
+	UserTagRelationsTable = &schema.Table{
+		Name:       "user_tag_relations",
+		Columns:    UserTagRelationsColumns,
+		PrimaryKey: []*schema.Column{UserTagRelationsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		NotifyTagTable,
 		NotifyTemplateTable,
+		TemplateTagRelationsTable,
 		NotifyUserTable,
+		UserTagRelationsTable,
 	}
 )
 

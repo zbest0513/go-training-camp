@@ -12,5 +12,11 @@ type Tag func(*sql.Selector)
 // Template is the predicate function for template builders.
 type Template func(*sql.Selector)
 
+// TemplateTagRelation is the predicate function for templatetagrelation builders.
+type TemplateTagRelation func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
+
+// UserTagRelation is the predicate function for usertagrelation builders.
+type UserTagRelation func(*sql.Selector)

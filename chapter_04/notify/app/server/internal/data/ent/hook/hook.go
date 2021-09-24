@@ -34,6 +34,19 @@ func (f TemplateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return f(ctx, mv)
 }
 
+// The TemplateTagRelationFunc type is an adapter to allow the use of ordinary
+// function as TemplateTagRelation mutator.
+type TemplateTagRelationFunc func(context.Context, *ent.TemplateTagRelationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TemplateTagRelationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.TemplateTagRelationMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TemplateTagRelationMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)
@@ -43,6 +56,19 @@ func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	mv, ok := m.(*ent.UserMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The UserTagRelationFunc type is an adapter to allow the use of ordinary
+// function as UserTagRelation mutator.
+type UserTagRelationFunc func(context.Context, *ent.UserTagRelationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserTagRelationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.UserTagRelationMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserTagRelationMutation", m)
 	}
 	return f(ctx, mv)
 }

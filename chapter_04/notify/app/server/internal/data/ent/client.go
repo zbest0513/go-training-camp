@@ -11,7 +11,9 @@ import (
 
 	"notify-server/internal/data/ent/tag"
 	"notify-server/internal/data/ent/template"
+	"notify-server/internal/data/ent/templatetagrelation"
 	"notify-server/internal/data/ent/user"
+	"notify-server/internal/data/ent/usertagrelation"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -26,8 +28,12 @@ type Client struct {
 	Tag *TagClient
 	// Template is the client for interacting with the Template builders.
 	Template *TemplateClient
+	// TemplateTagRelation is the client for interacting with the TemplateTagRelation builders.
+	TemplateTagRelation *TemplateTagRelationClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserTagRelation is the client for interacting with the UserTagRelation builders.
+	UserTagRelation *UserTagRelationClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -43,7 +49,9 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Tag = NewTagClient(c.config)
 	c.Template = NewTemplateClient(c.config)
+	c.TemplateTagRelation = NewTemplateTagRelationClient(c.config)
 	c.User = NewUserClient(c.config)
+	c.UserTagRelation = NewUserTagRelationClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -75,11 +83,13 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:      ctx,
-		config:   cfg,
-		Tag:      NewTagClient(cfg),
-		Template: NewTemplateClient(cfg),
-		User:     NewUserClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		Tag:                 NewTagClient(cfg),
+		Template:            NewTemplateClient(cfg),
+		TemplateTagRelation: NewTemplateTagRelationClient(cfg),
+		User:                NewUserClient(cfg),
+		UserTagRelation:     NewUserTagRelationClient(cfg),
 	}, nil
 }
 
@@ -97,10 +107,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		config:   cfg,
-		Tag:      NewTagClient(cfg),
-		Template: NewTemplateClient(cfg),
-		User:     NewUserClient(cfg),
+		config:              cfg,
+		Tag:                 NewTagClient(cfg),
+		Template:            NewTemplateClient(cfg),
+		TemplateTagRelation: NewTemplateTagRelationClient(cfg),
+		User:                NewUserClient(cfg),
+		UserTagRelation:     NewUserTagRelationClient(cfg),
 	}, nil
 }
 
@@ -132,7 +144,9 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	c.Tag.Use(hooks...)
 	c.Template.Use(hooks...)
+	c.TemplateTagRelation.Use(hooks...)
 	c.User.Use(hooks...)
+	c.UserTagRelation.Use(hooks...)
 }
 
 // TagClient is a client for the Tag schema.
@@ -315,6 +329,96 @@ func (c *TemplateClient) Hooks() []Hook {
 	return c.hooks.Template
 }
 
+// TemplateTagRelationClient is a client for the TemplateTagRelation schema.
+type TemplateTagRelationClient struct {
+	config
+}
+
+// NewTemplateTagRelationClient returns a client for the TemplateTagRelation from the given config.
+func NewTemplateTagRelationClient(c config) *TemplateTagRelationClient {
+	return &TemplateTagRelationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `templatetagrelation.Hooks(f(g(h())))`.
+func (c *TemplateTagRelationClient) Use(hooks ...Hook) {
+	c.hooks.TemplateTagRelation = append(c.hooks.TemplateTagRelation, hooks...)
+}
+
+// Create returns a create builder for TemplateTagRelation.
+func (c *TemplateTagRelationClient) Create() *TemplateTagRelationCreate {
+	mutation := newTemplateTagRelationMutation(c.config, OpCreate)
+	return &TemplateTagRelationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TemplateTagRelation entities.
+func (c *TemplateTagRelationClient) CreateBulk(builders ...*TemplateTagRelationCreate) *TemplateTagRelationCreateBulk {
+	return &TemplateTagRelationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TemplateTagRelation.
+func (c *TemplateTagRelationClient) Update() *TemplateTagRelationUpdate {
+	mutation := newTemplateTagRelationMutation(c.config, OpUpdate)
+	return &TemplateTagRelationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TemplateTagRelationClient) UpdateOne(ttr *TemplateTagRelation) *TemplateTagRelationUpdateOne {
+	mutation := newTemplateTagRelationMutation(c.config, OpUpdateOne, withTemplateTagRelation(ttr))
+	return &TemplateTagRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TemplateTagRelationClient) UpdateOneID(id int) *TemplateTagRelationUpdateOne {
+	mutation := newTemplateTagRelationMutation(c.config, OpUpdateOne, withTemplateTagRelationID(id))
+	return &TemplateTagRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TemplateTagRelation.
+func (c *TemplateTagRelationClient) Delete() *TemplateTagRelationDelete {
+	mutation := newTemplateTagRelationMutation(c.config, OpDelete)
+	return &TemplateTagRelationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *TemplateTagRelationClient) DeleteOne(ttr *TemplateTagRelation) *TemplateTagRelationDeleteOne {
+	return c.DeleteOneID(ttr.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *TemplateTagRelationClient) DeleteOneID(id int) *TemplateTagRelationDeleteOne {
+	builder := c.Delete().Where(templatetagrelation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TemplateTagRelationDeleteOne{builder}
+}
+
+// Query returns a query builder for TemplateTagRelation.
+func (c *TemplateTagRelationClient) Query() *TemplateTagRelationQuery {
+	return &TemplateTagRelationQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a TemplateTagRelation entity by its id.
+func (c *TemplateTagRelationClient) Get(ctx context.Context, id int) (*TemplateTagRelation, error) {
+	return c.Query().Where(templatetagrelation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TemplateTagRelationClient) GetX(ctx context.Context, id int) *TemplateTagRelation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *TemplateTagRelationClient) Hooks() []Hook {
+	return c.hooks.TemplateTagRelation
+}
+
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -403,4 +507,94 @@ func (c *UserClient) GetX(ctx context.Context, id int) *User {
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
+}
+
+// UserTagRelationClient is a client for the UserTagRelation schema.
+type UserTagRelationClient struct {
+	config
+}
+
+// NewUserTagRelationClient returns a client for the UserTagRelation from the given config.
+func NewUserTagRelationClient(c config) *UserTagRelationClient {
+	return &UserTagRelationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `usertagrelation.Hooks(f(g(h())))`.
+func (c *UserTagRelationClient) Use(hooks ...Hook) {
+	c.hooks.UserTagRelation = append(c.hooks.UserTagRelation, hooks...)
+}
+
+// Create returns a create builder for UserTagRelation.
+func (c *UserTagRelationClient) Create() *UserTagRelationCreate {
+	mutation := newUserTagRelationMutation(c.config, OpCreate)
+	return &UserTagRelationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of UserTagRelation entities.
+func (c *UserTagRelationClient) CreateBulk(builders ...*UserTagRelationCreate) *UserTagRelationCreateBulk {
+	return &UserTagRelationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for UserTagRelation.
+func (c *UserTagRelationClient) Update() *UserTagRelationUpdate {
+	mutation := newUserTagRelationMutation(c.config, OpUpdate)
+	return &UserTagRelationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *UserTagRelationClient) UpdateOne(utr *UserTagRelation) *UserTagRelationUpdateOne {
+	mutation := newUserTagRelationMutation(c.config, OpUpdateOne, withUserTagRelation(utr))
+	return &UserTagRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *UserTagRelationClient) UpdateOneID(id int) *UserTagRelationUpdateOne {
+	mutation := newUserTagRelationMutation(c.config, OpUpdateOne, withUserTagRelationID(id))
+	return &UserTagRelationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for UserTagRelation.
+func (c *UserTagRelationClient) Delete() *UserTagRelationDelete {
+	mutation := newUserTagRelationMutation(c.config, OpDelete)
+	return &UserTagRelationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *UserTagRelationClient) DeleteOne(utr *UserTagRelation) *UserTagRelationDeleteOne {
+	return c.DeleteOneID(utr.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *UserTagRelationClient) DeleteOneID(id int) *UserTagRelationDeleteOne {
+	builder := c.Delete().Where(usertagrelation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &UserTagRelationDeleteOne{builder}
+}
+
+// Query returns a query builder for UserTagRelation.
+func (c *UserTagRelationClient) Query() *UserTagRelationQuery {
+	return &UserTagRelationQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a UserTagRelation entity by its id.
+func (c *UserTagRelationClient) Get(ctx context.Context, id int) (*UserTagRelation, error) {
+	return c.Query().Where(usertagrelation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *UserTagRelationClient) GetX(ctx context.Context, id int) *UserTagRelation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *UserTagRelationClient) Hooks() []Hook {
+	return c.hooks.UserTagRelation
 }

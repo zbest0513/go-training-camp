@@ -16,8 +16,12 @@ type Tx struct {
 	Tag *TagClient
 	// Template is the client for interacting with the Template builders.
 	Template *TemplateClient
+	// TemplateTagRelation is the client for interacting with the TemplateTagRelation builders.
+	TemplateTagRelation *TemplateTagRelationClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// UserTagRelation is the client for interacting with the UserTagRelation builders.
+	UserTagRelation *UserTagRelationClient
 
 	// lazily loaded.
 	client     *Client
@@ -155,7 +159,9 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Tag = NewTagClient(tx.config)
 	tx.Template = NewTemplateClient(tx.config)
+	tx.TemplateTagRelation = NewTemplateTagRelationClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.UserTagRelation = NewUserTagRelationClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
