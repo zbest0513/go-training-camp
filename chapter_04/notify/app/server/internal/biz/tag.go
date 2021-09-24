@@ -11,3 +11,6 @@ type Tag struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type TagRepo interface {
+}

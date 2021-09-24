@@ -2,7 +2,7 @@ package biz
 
 import "time"
 
-type template struct {
+type Template struct {
 	Id        int
 	Uuid      string
 	Name      string
@@ -11,4 +11,7 @@ type template struct {
 	Status    int8
 	CreatedAt time.Time
 	UpdatedAt time.Time
+}
+
+type TemplateRepo interface {
 }
