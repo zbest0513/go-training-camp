@@ -9,7 +9,7 @@ type tagRepo struct {
 	data *ent.Client
 }
 
-func NewTagService(data *ent.Client) biz.TagRepo {
+func NewTagRepo(data *ent.Client) biz.TagRepo {
 	return &tagRepo{
 		data: data,
 	}

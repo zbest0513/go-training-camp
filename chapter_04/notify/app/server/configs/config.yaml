@@ -1,0 +1,14 @@
+server:
+  port: "8083"
+
+
+mysql:
+  username: "root"
+  password: "zhangbin123"
+  network: "tcp"
+  server: "mysql.zbest.tech"
+  port: "13306"
+  database: "notify"
+  maxopenconns: "100"
+  maxidleconns: "16"
+  connmaxlifetime: "100"
