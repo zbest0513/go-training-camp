@@ -1,6 +1,9 @@
-server:
-  port: "8083"
-
+servers:
+  shutdown-timeout: "30"
+  manage-server:
+    port: "8083"
+  monitor-server:
+    port: "8084"
 
 mysql:
   username: "root"

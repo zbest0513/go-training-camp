@@ -9,3 +9,34 @@ agent负责在目标机器采集日志，并按规则筛选日志，将server感
 
 ### server
 server负责接收来自agent发送的日志，给日志打对应的标签，发送到对应的接收人或群聊。
+
+目录结构
+
+```
+.
+└── notify
+    ├── api
+    │         └── server    
+    │             └── service   
+    ├── app
+    │         ├── agent                                                     
+    │         │         ├── configs
+    │         │         └── internal
+    │         └── server
+    │             ├── cmd
+    │             │         └── server
+    │             ├── configs
+    │             └── internal
+    │                 ├── biz
+    │                 ├── data                      
+    │                 │         └── ent
+    │                 ├── pkg
+    │                 └── service
+    │                     ├── handle
+    │                     └── router
+    ├── doc
+    └── pkg
+        ├── config      
+        └── utils                       
+35 directories
+```

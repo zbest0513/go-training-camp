@@ -8,7 +8,7 @@ import (
 	"notify/pkg/utils"
 )
 
-var ProviderSet = wire.NewSet(NewTagRepo, NewUserRepo, NewTemplateRepo)
+var ProviderSetData = wire.NewSet(NewTagRepo, NewUserRepo, NewTemplateRepo)
 
 var SqlClientProviderSet = wire.NewSet(NewEntClient, NewConfig)
 

@@ -9,6 +9,7 @@ package main
 import (
 	"notify-server/internal/biz"
 	"notify-server/internal/data"
+	"notify-server/internal/pkg"
 	"notify-server/internal/service/handle"
 	"notify-server/internal/service/router"
 	"notify/pkg/config"
@@ -16,7 +17,7 @@ import (
 
 // Injectors from wire.go:
 
-func initApp(fc config.FileConfig) (*router.Router, error) {
+func initApp(fc config.FileConfig) (*pkg.App, error) {
 	configConfig, err := data.NewConfig(fc)
 	if err != nil {
 		return nil, err
@@ -25,8 +26,15 @@ func initApp(fc config.FileConfig) (*router.Router, error) {
 	userRepo := data.NewUserRepo(client)
 	userUseCase := biz.NewUserUseCase(userRepo)
 	userService := handle.NewUserService(userUseCase)
-	routerRouter := &router.Router{
+	monitorRouter := &router.MonitorRouter{
 		ManageApi: userService,
 	}
-	return routerRouter, nil
+	manageRouter := &router.ManageRouter{
+		ManageApi: userService,
+	}
+	app, err := pkg.NewApp(configConfig, monitorRouter, manageRouter)
+	if err != nil {
+		return nil, err
+	}
+	return app, nil
 }

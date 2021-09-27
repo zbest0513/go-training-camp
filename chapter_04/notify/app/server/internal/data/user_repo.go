@@ -21,6 +21,7 @@ func NewUserRepo(data *ent.Client) biz.UserRepo {
 }
 
 func (ur *userRepo) Create(ctx context.Context, user biz.User) (*biz.User, error) {
+
 	uuid := uuid.New()
 	u, err := ur.data.User.Create().SetUUID(uuid).SetEmail(user.Email).
 		SetMobile(user.Mobile).SetName(user.Name).Save(ctx)
