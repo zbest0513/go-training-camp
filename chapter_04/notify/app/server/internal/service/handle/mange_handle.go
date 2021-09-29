@@ -52,3 +52,28 @@ func (us *UserService) CreateUser(c *gin.Context) {
 	}})
 	return
 }
+
+func (us *UserService) UpdateUserStatus(c *gin.Context) {
+	var dto api.UpdateUserStatusReqDto
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		// 返回错误信息
+		// gin.H封装了生成json数据的工具
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	ctx := context.WithValue(context.Background(), "ginContext", c)
+	//DTO => DO
+	user := biz.User{
+		Status: (int8)(dto.Status),
+		Uuid:   dto.UUID,
+	}
+	err := us.uc.UpdateUserStatus(ctx, user)
+	if err != nil {
+		log.Println(fmt.Sprintf("错误:%+v", err))
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	//DO => DTO
+	c.JSON(http.StatusOK, gin.H{"data": "success"})
+	return
+}

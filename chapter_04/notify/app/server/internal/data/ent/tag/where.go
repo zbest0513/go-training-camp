@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
@@ -108,7 +107,7 @@ func UpdatedAt(v time.Time) predicate.Tag {
 }
 
 // UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
-func UUID(v uuid.UUID) predicate.Tag {
+func UUID(v string) predicate.Tag {
 	return predicate.Tag(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldUUID), v))
 	})
@@ -288,21 +287,21 @@ func UpdatedAtLTE(v time.Time) predicate.Tag {
 }
 
 // UUIDEQ applies the EQ predicate on the "uuid" field.
-func UUIDEQ(v uuid.UUID) predicate.Tag {
+func UUIDEQ(v string) predicate.Tag {
 	return predicate.Tag(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldUUID), v))
 	})
 }
 
 // UUIDNEQ applies the NEQ predicate on the "uuid" field.
-func UUIDNEQ(v uuid.UUID) predicate.Tag {
+func UUIDNEQ(v string) predicate.Tag {
 	return predicate.Tag(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldUUID), v))
 	})
 }
 
 // UUIDIn applies the In predicate on the "uuid" field.
-func UUIDIn(vs ...uuid.UUID) predicate.Tag {
+func UUIDIn(vs ...string) predicate.Tag {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -319,7 +318,7 @@ func UUIDIn(vs ...uuid.UUID) predicate.Tag {
 }
 
 // UUIDNotIn applies the NotIn predicate on the "uuid" field.
-func UUIDNotIn(vs ...uuid.UUID) predicate.Tag {
+func UUIDNotIn(vs ...string) predicate.Tag {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -336,30 +335,65 @@ func UUIDNotIn(vs ...uuid.UUID) predicate.Tag {
 }
 
 // UUIDGT applies the GT predicate on the "uuid" field.
-func UUIDGT(v uuid.UUID) predicate.Tag {
+func UUIDGT(v string) predicate.Tag {
 	return predicate.Tag(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldUUID), v))
 	})
 }
 
 // UUIDGTE applies the GTE predicate on the "uuid" field.
-func UUIDGTE(v uuid.UUID) predicate.Tag {
+func UUIDGTE(v string) predicate.Tag {
 	return predicate.Tag(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldUUID), v))
 	})
 }
 
 // UUIDLT applies the LT predicate on the "uuid" field.
-func UUIDLT(v uuid.UUID) predicate.Tag {
+func UUIDLT(v string) predicate.Tag {
 	return predicate.Tag(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldUUID), v))
 	})
 }
 
 // UUIDLTE applies the LTE predicate on the "uuid" field.
-func UUIDLTE(v uuid.UUID) predicate.Tag {
+func UUIDLTE(v string) predicate.Tag {
 	return predicate.Tag(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDContains applies the Contains predicate on the "uuid" field.
+func UUIDContains(v string) predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDHasPrefix applies the HasPrefix predicate on the "uuid" field.
+func UUIDHasPrefix(v string) predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDHasSuffix applies the HasSuffix predicate on the "uuid" field.
+func UUIDHasSuffix(v string) predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDEqualFold applies the EqualFold predicate on the "uuid" field.
+func UUIDEqualFold(v string) predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDContainsFold applies the ContainsFold predicate on the "uuid" field.
+func UUIDContainsFold(v string) predicate.Tag {
+	return predicate.Tag(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldUUID), v))
 	})
 }
 

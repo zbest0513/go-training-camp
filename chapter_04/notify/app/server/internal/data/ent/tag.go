@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 // Tag is the model entity for the Tag schema.
@@ -22,7 +21,7 @@ type Tag struct {
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// UUID holds the value of the "uuid" field.
-	UUID uuid.UUID `json:"uuid,omitempty"`
+	UUID string `json:"uuid,omitempty"`
 	// Desc holds the value of the "desc" field.
 	Desc string `json:"desc,omitempty"`
 	// Name holds the value of the "name" field.
@@ -38,12 +37,10 @@ func (*Tag) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case tag.FieldID, tag.FieldStatus:
 			values[i] = new(sql.NullInt64)
-		case tag.FieldDesc, tag.FieldName:
+		case tag.FieldUUID, tag.FieldDesc, tag.FieldName:
 			values[i] = new(sql.NullString)
 		case tag.FieldCreatedAt, tag.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case tag.FieldUUID:
-			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Tag", columns[i])
 		}
@@ -78,10 +75,10 @@ func (t *Tag) assignValues(columns []string, values []interface{}) error {
 				t.UpdatedAt = value.Time
 			}
 		case tag.FieldUUID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field uuid", values[i])
-			} else if value != nil {
-				t.UUID = *value
+			} else if value.Valid {
+				t.UUID = value.String
 			}
 		case tag.FieldDesc:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -134,7 +131,7 @@ func (t *Tag) String() string {
 	builder.WriteString(", updated_at=")
 	builder.WriteString(t.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", uuid=")
-	builder.WriteString(fmt.Sprintf("%v", t.UUID))
+	builder.WriteString(t.UUID)
 	builder.WriteString(", desc=")
 	builder.WriteString(t.Desc)
 	builder.WriteString(", name=")

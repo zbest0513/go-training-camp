@@ -1,6 +1,9 @@
 package biz
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type Tag struct {
 	Id        int
@@ -30,4 +33,9 @@ type UserTagRelation struct {
 }
 
 type TagRepo interface {
+	CreateTag(ctx context.Context, tag Tag) (*Tag, error)
+	QueryTagByName(ctx context.Context, name string) (*Tag, error)
+	SyncTag(ctx context.Context, tag Tag) (int, error)
+	UpdateStatus(ctx context.Context, uuid string, status int) (int, error)
+	DeleteTag(ctx context.Context, uuid string) (int, error)
 }

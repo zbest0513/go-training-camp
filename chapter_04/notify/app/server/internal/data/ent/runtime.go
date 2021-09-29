@@ -8,8 +8,6 @@ import (
 	"notify-server/internal/data/ent/template"
 	"notify-server/internal/data/ent/user"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -28,10 +26,6 @@ func init() {
 	tag.DefaultUpdatedAt = tagDescUpdatedAt.Default.(func() time.Time)
 	// tag.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	tag.UpdateDefaultUpdatedAt = tagDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// tagDescUUID is the schema descriptor for uuid field.
-	tagDescUUID := tagFields[2].Descriptor()
-	// tag.DefaultUUID holds the default value on creation for the uuid field.
-	tag.DefaultUUID = tagDescUUID.Default.(func() uuid.UUID)
 	// tagDescDesc is the schema descriptor for desc field.
 	tagDescDesc := tagFields[3].Descriptor()
 	// tag.DescValidator is a validator for the "desc" field. It is called by the builders before save.
@@ -86,10 +80,6 @@ func init() {
 	template.DefaultUpdatedAt = templateDescUpdatedAt.Default.(func() time.Time)
 	// template.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	template.UpdateDefaultUpdatedAt = templateDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// templateDescUUID is the schema descriptor for uuid field.
-	templateDescUUID := templateFields[2].Descriptor()
-	// template.DefaultUUID holds the default value on creation for the uuid field.
-	template.DefaultUUID = templateDescUUID.Default.(func() uuid.UUID)
 	// templateDescDesc is the schema descriptor for desc field.
 	templateDescDesc := templateFields[3].Descriptor()
 	// template.DescValidator is a validator for the "desc" field. It is called by the builders before save.
@@ -144,10 +134,6 @@ func init() {
 	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// userDescUUID is the schema descriptor for uuid field.
-	userDescUUID := userFields[2].Descriptor()
-	// user.DefaultUUID holds the default value on creation for the uuid field.
-	user.DefaultUUID = userDescUUID.Default.(func() uuid.UUID)
 	// userDescMobile is the schema descriptor for mobile field.
 	userDescMobile := userFields[3].Descriptor()
 	// user.MobileValidator is a validator for the "mobile" field. It is called by the builders before save.

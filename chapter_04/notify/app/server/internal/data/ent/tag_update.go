@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // TagUpdate is the builder for updating Tag entities.
@@ -35,8 +34,8 @@ func (tu *TagUpdate) SetUpdatedAt(t time.Time) *TagUpdate {
 }
 
 // SetUUID sets the "uuid" field.
-func (tu *TagUpdate) SetUUID(u uuid.UUID) *TagUpdate {
-	tu.mutation.SetUUID(u)
+func (tu *TagUpdate) SetUUID(s string) *TagUpdate {
+	tu.mutation.SetUUID(s)
 	return tu
 }
 
@@ -194,7 +193,7 @@ func (tu *TagUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.UUID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: tag.FieldUUID,
 		})
@@ -253,8 +252,8 @@ func (tuo *TagUpdateOne) SetUpdatedAt(t time.Time) *TagUpdateOne {
 }
 
 // SetUUID sets the "uuid" field.
-func (tuo *TagUpdateOne) SetUUID(u uuid.UUID) *TagUpdateOne {
-	tuo.mutation.SetUUID(u)
+func (tuo *TagUpdateOne) SetUUID(s string) *TagUpdateOne {
+	tuo.mutation.SetUUID(s)
 	return tuo
 }
 
@@ -436,7 +435,7 @@ func (tuo *TagUpdateOne) sqlSave(ctx context.Context) (_node *Tag, err error) {
 	}
 	if value, ok := tuo.mutation.UUID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: tag.FieldUUID,
 		})

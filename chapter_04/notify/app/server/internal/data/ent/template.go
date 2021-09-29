@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/google/uuid"
 )
 
 // Template is the model entity for the Template schema.
@@ -22,7 +21,7 @@ type Template struct {
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// UUID holds the value of the "uuid" field.
-	UUID uuid.UUID `json:"uuid,omitempty"`
+	UUID string `json:"uuid,omitempty"`
 	// Desc holds the value of the "desc" field.
 	Desc string `json:"desc,omitempty"`
 	// Name holds the value of the "name" field.
@@ -40,12 +39,10 @@ func (*Template) scanValues(columns []string) ([]interface{}, error) {
 		switch columns[i] {
 		case template.FieldID, template.FieldStatus:
 			values[i] = new(sql.NullInt64)
-		case template.FieldDesc, template.FieldName, template.FieldContent:
+		case template.FieldUUID, template.FieldDesc, template.FieldName, template.FieldContent:
 			values[i] = new(sql.NullString)
 		case template.FieldCreatedAt, template.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case template.FieldUUID:
-			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Template", columns[i])
 		}
@@ -80,10 +77,10 @@ func (t *Template) assignValues(columns []string, values []interface{}) error {
 				t.UpdatedAt = value.Time
 			}
 		case template.FieldUUID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field uuid", values[i])
-			} else if value != nil {
-				t.UUID = *value
+			} else if value.Valid {
+				t.UUID = value.String
 			}
 		case template.FieldDesc:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -142,7 +139,7 @@ func (t *Template) String() string {
 	builder.WriteString(", updated_at=")
 	builder.WriteString(t.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", uuid=")
-	builder.WriteString(fmt.Sprintf("%v", t.UUID))
+	builder.WriteString(t.UUID)
 	builder.WriteString(", desc=")
 	builder.WriteString(t.Desc)
 	builder.WriteString(", name=")

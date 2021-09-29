@@ -6,7 +6,6 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 	"time"
 )
 
@@ -32,8 +31,7 @@ func (User) Fields() []ent.Field {
 			dialect.MySQL: "datetime",
 		}).Default(time.Now).
 			UpdateDefault(time.Now),
-		field.UUID("uuid", uuid.UUID{}).
-			Default(uuid.New).Unique(),
+		field.String("uuid").Unique(),
 		field.String("mobile").
 			NotEmpty().MaxLen(11).MinLen(11),
 		field.String("name").

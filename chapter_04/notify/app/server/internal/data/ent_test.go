@@ -20,7 +20,7 @@ import (
 func TestEntSelect(t *testing.T) {
 	dsn := fmt.Sprintf("%s:%s@%s(%s:%d)/%s", username, password, network, server, port, database)
 
-	uuid := uuid.New()
+	uuid := uuid.New().String()
 	db := Open(dsn)
 	defer db.Close()
 	u, err := db.User.Create().SetUUID(uuid).SetEmail("24566370@qq.com").SetMobile("15012341324").SetName("张三").Save(context.TODO())

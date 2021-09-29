@@ -11,7 +11,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // TemplateCreate is the builder for creating a Template entity.
@@ -50,8 +49,8 @@ func (tc *TemplateCreate) SetNillableUpdatedAt(t *time.Time) *TemplateCreate {
 }
 
 // SetUUID sets the "uuid" field.
-func (tc *TemplateCreate) SetUUID(u uuid.UUID) *TemplateCreate {
-	tc.mutation.SetUUID(u)
+func (tc *TemplateCreate) SetUUID(s string) *TemplateCreate {
+	tc.mutation.SetUUID(s)
 	return tc
 }
 
@@ -166,10 +165,6 @@ func (tc *TemplateCreate) defaults() {
 		v := template.DefaultUpdatedAt()
 		tc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := tc.mutation.UUID(); !ok {
-		v := template.DefaultUUID()
-		tc.mutation.SetUUID(v)
-	}
 	if _, ok := tc.mutation.Status(); !ok {
 		v := template.DefaultStatus
 		tc.mutation.SetStatus(v)
@@ -259,7 +254,7 @@ func (tc *TemplateCreate) createSpec() (*Template, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := tc.mutation.UUID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: template.FieldUUID,
 		})

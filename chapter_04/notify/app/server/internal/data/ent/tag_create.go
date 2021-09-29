@@ -11,7 +11,6 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // TagCreate is the builder for creating a Tag entity.
@@ -50,8 +49,8 @@ func (tc *TagCreate) SetNillableUpdatedAt(t *time.Time) *TagCreate {
 }
 
 // SetUUID sets the "uuid" field.
-func (tc *TagCreate) SetUUID(u uuid.UUID) *TagCreate {
-	tc.mutation.SetUUID(u)
+func (tc *TagCreate) SetUUID(s string) *TagCreate {
+	tc.mutation.SetUUID(s)
 	return tc
 }
 
@@ -160,10 +159,6 @@ func (tc *TagCreate) defaults() {
 		v := tag.DefaultUpdatedAt()
 		tc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := tc.mutation.UUID(); !ok {
-		v := tag.DefaultUUID()
-		tc.mutation.SetUUID(v)
-	}
 	if _, ok := tc.mutation.Status(); !ok {
 		v := tag.DefaultStatus
 		tc.mutation.SetStatus(v)
@@ -250,7 +245,7 @@ func (tc *TagCreate) createSpec() (*Tag, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := tc.mutation.UUID(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: tag.FieldUUID,
 		})

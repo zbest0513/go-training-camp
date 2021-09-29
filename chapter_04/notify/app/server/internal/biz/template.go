@@ -1,6 +1,9 @@
 package biz
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type Template struct {
 	Id        int
@@ -14,4 +17,8 @@ type Template struct {
 }
 
 type TemplateRepo interface {
+	CreateTemplate(context.Context, Template) (*Template, error)
+	UpdateTemplate(context.Context, Template) (int, error)
+	UpdateStatus(context.Context, string, int) (int, error)
+	DeleteTemplate(context.Context, string) (int, error)
 }

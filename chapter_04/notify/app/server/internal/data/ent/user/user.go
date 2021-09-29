@@ -4,8 +4,6 @@ package user
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 const (
@@ -60,8 +58,6 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// DefaultUUID holds the default value on creation for the "uuid" field.
-	DefaultUUID func() uuid.UUID
 	// MobileValidator is a validator for the "mobile" field. It is called by the builders before save.
 	MobileValidator func(string) error
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.

@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/google/uuid"
 )
 
 // TemplateUpdate is the builder for updating Template entities.
@@ -35,8 +34,8 @@ func (tu *TemplateUpdate) SetUpdatedAt(t time.Time) *TemplateUpdate {
 }
 
 // SetUUID sets the "uuid" field.
-func (tu *TemplateUpdate) SetUUID(u uuid.UUID) *TemplateUpdate {
-	tu.mutation.SetUUID(u)
+func (tu *TemplateUpdate) SetUUID(s string) *TemplateUpdate {
+	tu.mutation.SetUUID(s)
 	return tu
 }
 
@@ -200,7 +199,7 @@ func (tu *TemplateUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := tu.mutation.UUID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: template.FieldUUID,
 		})
@@ -266,8 +265,8 @@ func (tuo *TemplateUpdateOne) SetUpdatedAt(t time.Time) *TemplateUpdateOne {
 }
 
 // SetUUID sets the "uuid" field.
-func (tuo *TemplateUpdateOne) SetUUID(u uuid.UUID) *TemplateUpdateOne {
-	tuo.mutation.SetUUID(u)
+func (tuo *TemplateUpdateOne) SetUUID(s string) *TemplateUpdateOne {
+	tuo.mutation.SetUUID(s)
 	return tuo
 }
 
@@ -455,7 +454,7 @@ func (tuo *TemplateUpdateOne) sqlSave(ctx context.Context) (_node *Template, err
 	}
 	if value, ok := tuo.mutation.UUID(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
+			Type:   field.TypeString,
 			Value:  value,
 			Column: template.FieldUUID,
 		})

@@ -21,7 +21,14 @@ type QueryUserReqDto struct {
 	UUID string
 }
 
+type UpdateUserStatusReqDto struct {
+	UUID   string
+	Status int
+}
+
 type ManageApi interface {
+	// CreateUser method param use CreateUserReqDto
 	CreateUser(*gin.Context)
-	//QueryUser(*gin.Engine,QueryUserReqDto) UserDto
+	// UpdateUserStatus method param use UpdateUserStatusReqDto
+	UpdateUserStatus(*gin.Context)
 }
