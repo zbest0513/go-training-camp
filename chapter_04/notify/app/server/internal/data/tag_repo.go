@@ -8,6 +8,9 @@ import (
 	"notify-server/internal/biz"
 	"notify-server/internal/data/ent"
 	tWhere "notify-server/internal/data/ent/tag"
+	tlWhere "notify-server/internal/data/ent/templatetagrelation"
+	uWhere "notify-server/internal/data/ent/user"
+	utWhere "notify-server/internal/data/ent/usertagrelation"
 	"time"
 )
 
@@ -83,4 +86,68 @@ func (tr *tagRepo) DeleteTag(ctx context.Context, uuid string) (int, error) {
 		return 0, errors.WithMessage(err, "repo删除tag失败")
 	}
 	return count, nil
+}
+
+func (tr *tagRepo) DisbandUserRelations(ctx context.Context, uuid string) (int, error) {
+	count, err := tr.data.UserTagRelation.Delete().Where(utWhere.TagUUIDEQ(uuid)).Exec(ctx)
+	if err != nil {
+		return count, errors.WithMessage(err, "删除用户关系失败")
+	}
+	return count, nil
+}
+
+func (tr *tagRepo) DisbandTemplateRelations(ctx context.Context, uuid string) (int, error) {
+	count, err := tr.data.TemplateTagRelation.Delete().Where(tlWhere.TagUUIDEQ(uuid)).Exec(ctx)
+	if err != nil {
+		return count, errors.WithMessage(err, "删除模版关系失败")
+	}
+	return count, nil
+}
+
+func (tr *tagRepo) UpdateUserRelationsStatus(ctx context.Context, uuid string, status int) (int, error) {
+	count, err := tr.data.UserTagRelation.Update().SetStatus(status).Where(utWhere.TagUUIDEQ(uuid)).Save(ctx)
+	if err != nil {
+		return count, errors.WithMessage(err, "修改用户关系状态失败")
+	}
+	return count, nil
+}
+
+func (tr *tagRepo) UpdateTemplateRelationsStatus(ctx context.Context, uuid string, status int) (int, error) {
+	count, err := tr.data.TemplateTagRelation.Update().SetStatus(status).Where(tlWhere.TagUUIDEQ(uuid)).Save(ctx)
+	if err != nil {
+		return count, errors.WithMessage(err, "修改模版关系状态失败")
+	}
+	return count, nil
+}
+
+func (tr *tagRepo) QueryUsers(ctx context.Context, uuid string) ([]*biz.User, error) {
+	all, err := tr.data.UserTagRelation.Query().Where(utWhere.TagUUIDEQ(uuid)).All(ctx)
+	if err != nil {
+		return nil, errors.WithMessage(err, fmt.Sprintf("查询tag[%v]用户关系失败", uuid))
+	}
+	count := len(all)
+	userUuids := make([]string, count)
+	for i := 0; i < count; i++ {
+		userUuids[i] = *all[i].UserUUID
+	}
+	users, err := tr.data.User.Query().Where(uWhere.UUIDIn(userUuids...)).All(ctx)
+	if err != nil {
+		return nil, errors.WithMessage(err, fmt.Sprintf("查询用户列表失败:[%v]", userUuids))
+	}
+	count = len(users)
+	result := make([]*biz.User, count)
+
+	for i := 0; i < count; i++ {
+		result[i] = &biz.User{
+			users[i].ID,
+			users[i].UUID,
+			users[i].Name,
+			users[i].Mobile,
+			users[i].Email,
+			(int8)(users[i].Status),
+			users[i].CreatedAt,
+			users[i].UpdatedAt,
+		}
+	}
+	return result, nil
 }
