@@ -249,6 +249,19 @@ func (utrq *UserTagRelationQuery) Clone() *UserTagRelationQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.UserTagRelation.Query().
+//		GroupBy(usertagrelation.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
+//
 func (utrq *UserTagRelationQuery) GroupBy(field string, fields ...string) *UserTagRelationGroupBy {
 	group := &UserTagRelationGroupBy{config: utrq.config}
 	group.fields = append([]string{field}, fields...)
@@ -263,6 +276,17 @@ func (utrq *UserTagRelationQuery) GroupBy(field string, fields ...string) *UserT
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.UserTagRelation.Query().
+//		Select(usertagrelation.FieldCreatedAt).
+//		Scan(ctx, &v)
+//
 func (utrq *UserTagRelationQuery) Select(fields ...string) *UserTagRelationSelect {
 	utrq.fields = append(utrq.fields, fields...)
 	return &UserTagRelationSelect{UserTagRelationQuery: utrq}

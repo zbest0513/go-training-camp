@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
+	"notify-server/internal/pkg/enum"
 	"time"
 )
 
@@ -39,7 +40,7 @@ func (User) Fields() []ent.Field {
 		field.String("email").
 			NotEmpty().MaxLen(100),
 		field.Int("status").
-			Default(0).NonNegative(),
+			Default(enum.USER_STATUS_AVAILABLE).NonNegative(),
 	}
 }
 

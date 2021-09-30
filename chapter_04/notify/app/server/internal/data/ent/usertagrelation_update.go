@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"notify-server/internal/data/ent/predicate"
 	"notify-server/internal/data/ent/usertagrelation"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -26,6 +27,73 @@ func (utru *UserTagRelationUpdate) Where(ps ...predicate.UserTagRelation) *UserT
 	return utru
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (utru *UserTagRelationUpdate) SetUpdatedAt(t time.Time) *UserTagRelationUpdate {
+	utru.mutation.SetUpdatedAt(t)
+	return utru
+}
+
+// SetUserUUID sets the "user_uuid" field.
+func (utru *UserTagRelationUpdate) SetUserUUID(s string) *UserTagRelationUpdate {
+	utru.mutation.SetUserUUID(s)
+	return utru
+}
+
+// SetNillableUserUUID sets the "user_uuid" field if the given value is not nil.
+func (utru *UserTagRelationUpdate) SetNillableUserUUID(s *string) *UserTagRelationUpdate {
+	if s != nil {
+		utru.SetUserUUID(*s)
+	}
+	return utru
+}
+
+// ClearUserUUID clears the value of the "user_uuid" field.
+func (utru *UserTagRelationUpdate) ClearUserUUID() *UserTagRelationUpdate {
+	utru.mutation.ClearUserUUID()
+	return utru
+}
+
+// SetTagUUID sets the "tag_uuid" field.
+func (utru *UserTagRelationUpdate) SetTagUUID(s string) *UserTagRelationUpdate {
+	utru.mutation.SetTagUUID(s)
+	return utru
+}
+
+// SetNillableTagUUID sets the "tag_uuid" field if the given value is not nil.
+func (utru *UserTagRelationUpdate) SetNillableTagUUID(s *string) *UserTagRelationUpdate {
+	if s != nil {
+		utru.SetTagUUID(*s)
+	}
+	return utru
+}
+
+// ClearTagUUID clears the value of the "tag_uuid" field.
+func (utru *UserTagRelationUpdate) ClearTagUUID() *UserTagRelationUpdate {
+	utru.mutation.ClearTagUUID()
+	return utru
+}
+
+// SetStatus sets the "status" field.
+func (utru *UserTagRelationUpdate) SetStatus(i int) *UserTagRelationUpdate {
+	utru.mutation.ResetStatus()
+	utru.mutation.SetStatus(i)
+	return utru
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (utru *UserTagRelationUpdate) SetNillableStatus(i *int) *UserTagRelationUpdate {
+	if i != nil {
+		utru.SetStatus(*i)
+	}
+	return utru
+}
+
+// AddStatus adds i to the "status" field.
+func (utru *UserTagRelationUpdate) AddStatus(i int) *UserTagRelationUpdate {
+	utru.mutation.AddStatus(i)
+	return utru
+}
+
 // Mutation returns the UserTagRelationMutation object of the builder.
 func (utru *UserTagRelationUpdate) Mutation() *UserTagRelationMutation {
 	return utru.mutation
@@ -37,13 +105,20 @@ func (utru *UserTagRelationUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
+	utru.defaults()
 	if len(utru.hooks) == 0 {
+		if err = utru.check(); err != nil {
+			return 0, err
+		}
 		affected, err = utru.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*UserTagRelationMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = utru.check(); err != nil {
+				return 0, err
 			}
 			utru.mutation = mutation
 			affected, err = utru.sqlSave(ctx)
@@ -85,6 +160,34 @@ func (utru *UserTagRelationUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (utru *UserTagRelationUpdate) defaults() {
+	if _, ok := utru.mutation.UpdatedAt(); !ok {
+		v := usertagrelation.UpdateDefaultUpdatedAt()
+		utru.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (utru *UserTagRelationUpdate) check() error {
+	if v, ok := utru.mutation.UserUUID(); ok {
+		if err := usertagrelation.UserUUIDValidator(v); err != nil {
+			return &ValidationError{Name: "user_uuid", err: fmt.Errorf("ent: validator failed for field \"user_uuid\": %w", err)}
+		}
+	}
+	if v, ok := utru.mutation.TagUUID(); ok {
+		if err := usertagrelation.TagUUIDValidator(v); err != nil {
+			return &ValidationError{Name: "tag_uuid", err: fmt.Errorf("ent: validator failed for field \"tag_uuid\": %w", err)}
+		}
+	}
+	if v, ok := utru.mutation.Status(); ok {
+		if err := usertagrelation.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	return nil
+}
+
 func (utru *UserTagRelationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -102,6 +205,53 @@ func (utru *UserTagRelationUpdate) sqlSave(ctx context.Context) (n int, err erro
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := utru.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: usertagrelation.FieldUpdatedAt,
+		})
+	}
+	if value, ok := utru.mutation.UserUUID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: usertagrelation.FieldUserUUID,
+		})
+	}
+	if utru.mutation.UserUUIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: usertagrelation.FieldUserUUID,
+		})
+	}
+	if value, ok := utru.mutation.TagUUID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: usertagrelation.FieldTagUUID,
+		})
+	}
+	if utru.mutation.TagUUIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: usertagrelation.FieldTagUUID,
+		})
+	}
+	if value, ok := utru.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: usertagrelation.FieldStatus,
+		})
+	}
+	if value, ok := utru.mutation.AddedStatus(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: usertagrelation.FieldStatus,
+		})
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, utru.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -122,6 +272,73 @@ type UserTagRelationUpdateOne struct {
 	mutation *UserTagRelationMutation
 }
 
+// SetUpdatedAt sets the "updated_at" field.
+func (utruo *UserTagRelationUpdateOne) SetUpdatedAt(t time.Time) *UserTagRelationUpdateOne {
+	utruo.mutation.SetUpdatedAt(t)
+	return utruo
+}
+
+// SetUserUUID sets the "user_uuid" field.
+func (utruo *UserTagRelationUpdateOne) SetUserUUID(s string) *UserTagRelationUpdateOne {
+	utruo.mutation.SetUserUUID(s)
+	return utruo
+}
+
+// SetNillableUserUUID sets the "user_uuid" field if the given value is not nil.
+func (utruo *UserTagRelationUpdateOne) SetNillableUserUUID(s *string) *UserTagRelationUpdateOne {
+	if s != nil {
+		utruo.SetUserUUID(*s)
+	}
+	return utruo
+}
+
+// ClearUserUUID clears the value of the "user_uuid" field.
+func (utruo *UserTagRelationUpdateOne) ClearUserUUID() *UserTagRelationUpdateOne {
+	utruo.mutation.ClearUserUUID()
+	return utruo
+}
+
+// SetTagUUID sets the "tag_uuid" field.
+func (utruo *UserTagRelationUpdateOne) SetTagUUID(s string) *UserTagRelationUpdateOne {
+	utruo.mutation.SetTagUUID(s)
+	return utruo
+}
+
+// SetNillableTagUUID sets the "tag_uuid" field if the given value is not nil.
+func (utruo *UserTagRelationUpdateOne) SetNillableTagUUID(s *string) *UserTagRelationUpdateOne {
+	if s != nil {
+		utruo.SetTagUUID(*s)
+	}
+	return utruo
+}
+
+// ClearTagUUID clears the value of the "tag_uuid" field.
+func (utruo *UserTagRelationUpdateOne) ClearTagUUID() *UserTagRelationUpdateOne {
+	utruo.mutation.ClearTagUUID()
+	return utruo
+}
+
+// SetStatus sets the "status" field.
+func (utruo *UserTagRelationUpdateOne) SetStatus(i int) *UserTagRelationUpdateOne {
+	utruo.mutation.ResetStatus()
+	utruo.mutation.SetStatus(i)
+	return utruo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (utruo *UserTagRelationUpdateOne) SetNillableStatus(i *int) *UserTagRelationUpdateOne {
+	if i != nil {
+		utruo.SetStatus(*i)
+	}
+	return utruo
+}
+
+// AddStatus adds i to the "status" field.
+func (utruo *UserTagRelationUpdateOne) AddStatus(i int) *UserTagRelationUpdateOne {
+	utruo.mutation.AddStatus(i)
+	return utruo
+}
+
 // Mutation returns the UserTagRelationMutation object of the builder.
 func (utruo *UserTagRelationUpdateOne) Mutation() *UserTagRelationMutation {
 	return utruo.mutation
@@ -140,13 +357,20 @@ func (utruo *UserTagRelationUpdateOne) Save(ctx context.Context) (*UserTagRelati
 		err  error
 		node *UserTagRelation
 	)
+	utruo.defaults()
 	if len(utruo.hooks) == 0 {
+		if err = utruo.check(); err != nil {
+			return nil, err
+		}
 		node, err = utruo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*UserTagRelationMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = utruo.check(); err != nil {
+				return nil, err
 			}
 			utruo.mutation = mutation
 			node, err = utruo.sqlSave(ctx)
@@ -188,6 +412,34 @@ func (utruo *UserTagRelationUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (utruo *UserTagRelationUpdateOne) defaults() {
+	if _, ok := utruo.mutation.UpdatedAt(); !ok {
+		v := usertagrelation.UpdateDefaultUpdatedAt()
+		utruo.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (utruo *UserTagRelationUpdateOne) check() error {
+	if v, ok := utruo.mutation.UserUUID(); ok {
+		if err := usertagrelation.UserUUIDValidator(v); err != nil {
+			return &ValidationError{Name: "user_uuid", err: fmt.Errorf("ent: validator failed for field \"user_uuid\": %w", err)}
+		}
+	}
+	if v, ok := utruo.mutation.TagUUID(); ok {
+		if err := usertagrelation.TagUUIDValidator(v); err != nil {
+			return &ValidationError{Name: "tag_uuid", err: fmt.Errorf("ent: validator failed for field \"tag_uuid\": %w", err)}
+		}
+	}
+	if v, ok := utruo.mutation.Status(); ok {
+		if err := usertagrelation.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	return nil
+}
+
 func (utruo *UserTagRelationUpdateOne) sqlSave(ctx context.Context) (_node *UserTagRelation, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -222,6 +474,53 @@ func (utruo *UserTagRelationUpdateOne) sqlSave(ctx context.Context) (_node *User
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := utruo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: usertagrelation.FieldUpdatedAt,
+		})
+	}
+	if value, ok := utruo.mutation.UserUUID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: usertagrelation.FieldUserUUID,
+		})
+	}
+	if utruo.mutation.UserUUIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: usertagrelation.FieldUserUUID,
+		})
+	}
+	if value, ok := utruo.mutation.TagUUID(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: usertagrelation.FieldTagUUID,
+		})
+	}
+	if utruo.mutation.TagUUIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: usertagrelation.FieldTagUUID,
+		})
+	}
+	if value, ok := utruo.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: usertagrelation.FieldStatus,
+		})
+	}
+	if value, ok := utruo.mutation.AddedStatus(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: usertagrelation.FieldStatus,
+		})
 	}
 	_node = &UserTagRelation{config: utruo.config}
 	_spec.Assign = _node.assignValues

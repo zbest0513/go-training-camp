@@ -45,6 +45,11 @@ var (
 	// TemplateTagRelationsColumns holds the columns for the "template_tag_relations" table.
 	TemplateTagRelationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
+		{Name: "template_uuid", Type: field.TypeString, Nullable: true},
+		{Name: "tag_uuid", Type: field.TypeString, Nullable: true},
+		{Name: "status", Type: field.TypeInt, Default: 1},
 	}
 	// TemplateTagRelationsTable holds the schema information for the "template_tag_relations" table.
 	TemplateTagRelationsTable = &schema.Table{
@@ -72,6 +77,11 @@ var (
 	// UserTagRelationsColumns holds the columns for the "user_tag_relations" table.
 	UserTagRelationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
+		{Name: "user_uuid", Type: field.TypeString, Nullable: true},
+		{Name: "tag_uuid", Type: field.TypeString, Nullable: true},
+		{Name: "status", Type: field.TypeInt, Default: 1},
 	}
 	// UserTagRelationsTable holds the schema information for the "user_tag_relations" table.
 	UserTagRelationsTable = &schema.Table{

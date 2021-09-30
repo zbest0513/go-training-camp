@@ -6,7 +6,9 @@ import (
 	"notify-server/internal/data/ent/schema"
 	"notify-server/internal/data/ent/tag"
 	"notify-server/internal/data/ent/template"
+	"notify-server/internal/data/ent/templatetagrelation"
 	"notify-server/internal/data/ent/user"
+	"notify-server/internal/data/ent/usertagrelation"
 	"time"
 )
 
@@ -122,6 +124,32 @@ func init() {
 	template.DefaultStatus = templateDescStatus.Default.(int)
 	// template.StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	template.StatusValidator = templateDescStatus.Validators[0].(func(int) error)
+	templatetagrelationFields := schema.TemplateTagRelation{}.Fields()
+	_ = templatetagrelationFields
+	// templatetagrelationDescCreatedAt is the schema descriptor for created_at field.
+	templatetagrelationDescCreatedAt := templatetagrelationFields[0].Descriptor()
+	// templatetagrelation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	templatetagrelation.DefaultCreatedAt = templatetagrelationDescCreatedAt.Default.(func() time.Time)
+	// templatetagrelationDescUpdatedAt is the schema descriptor for updated_at field.
+	templatetagrelationDescUpdatedAt := templatetagrelationFields[1].Descriptor()
+	// templatetagrelation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	templatetagrelation.DefaultUpdatedAt = templatetagrelationDescUpdatedAt.Default.(func() time.Time)
+	// templatetagrelation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	templatetagrelation.UpdateDefaultUpdatedAt = templatetagrelationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// templatetagrelationDescTemplateUUID is the schema descriptor for template_uuid field.
+	templatetagrelationDescTemplateUUID := templatetagrelationFields[2].Descriptor()
+	// templatetagrelation.TemplateUUIDValidator is a validator for the "template_uuid" field. It is called by the builders before save.
+	templatetagrelation.TemplateUUIDValidator = templatetagrelationDescTemplateUUID.Validators[0].(func(string) error)
+	// templatetagrelationDescTagUUID is the schema descriptor for tag_uuid field.
+	templatetagrelationDescTagUUID := templatetagrelationFields[3].Descriptor()
+	// templatetagrelation.TagUUIDValidator is a validator for the "tag_uuid" field. It is called by the builders before save.
+	templatetagrelation.TagUUIDValidator = templatetagrelationDescTagUUID.Validators[0].(func(string) error)
+	// templatetagrelationDescStatus is the schema descriptor for status field.
+	templatetagrelationDescStatus := templatetagrelationFields[4].Descriptor()
+	// templatetagrelation.DefaultStatus holds the default value on creation for the status field.
+	templatetagrelation.DefaultStatus = templatetagrelationDescStatus.Default.(int)
+	// templatetagrelation.StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	templatetagrelation.StatusValidator = templatetagrelationDescStatus.Validators[0].(func(int) error)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescCreatedAt is the schema descriptor for created_at field.
@@ -195,4 +223,30 @@ func init() {
 	user.DefaultStatus = userDescStatus.Default.(int)
 	// user.StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	user.StatusValidator = userDescStatus.Validators[0].(func(int) error)
+	usertagrelationFields := schema.UserTagRelation{}.Fields()
+	_ = usertagrelationFields
+	// usertagrelationDescCreatedAt is the schema descriptor for created_at field.
+	usertagrelationDescCreatedAt := usertagrelationFields[0].Descriptor()
+	// usertagrelation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	usertagrelation.DefaultCreatedAt = usertagrelationDescCreatedAt.Default.(func() time.Time)
+	// usertagrelationDescUpdatedAt is the schema descriptor for updated_at field.
+	usertagrelationDescUpdatedAt := usertagrelationFields[1].Descriptor()
+	// usertagrelation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	usertagrelation.DefaultUpdatedAt = usertagrelationDescUpdatedAt.Default.(func() time.Time)
+	// usertagrelation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	usertagrelation.UpdateDefaultUpdatedAt = usertagrelationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// usertagrelationDescUserUUID is the schema descriptor for user_uuid field.
+	usertagrelationDescUserUUID := usertagrelationFields[2].Descriptor()
+	// usertagrelation.UserUUIDValidator is a validator for the "user_uuid" field. It is called by the builders before save.
+	usertagrelation.UserUUIDValidator = usertagrelationDescUserUUID.Validators[0].(func(string) error)
+	// usertagrelationDescTagUUID is the schema descriptor for tag_uuid field.
+	usertagrelationDescTagUUID := usertagrelationFields[3].Descriptor()
+	// usertagrelation.TagUUIDValidator is a validator for the "tag_uuid" field. It is called by the builders before save.
+	usertagrelation.TagUUIDValidator = usertagrelationDescTagUUID.Validators[0].(func(string) error)
+	// usertagrelationDescStatus is the schema descriptor for status field.
+	usertagrelationDescStatus := usertagrelationFields[4].Descriptor()
+	// usertagrelation.DefaultStatus holds the default value on creation for the status field.
+	usertagrelation.DefaultStatus = usertagrelationDescStatus.Default.(int)
+	// usertagrelation.StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	usertagrelation.StatusValidator = usertagrelationDescStatus.Validators[0].(func(int) error)
 }

@@ -4,8 +4,10 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"notify-server/internal/data/ent/usertagrelation"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -16,6 +18,76 @@ type UserTagRelationCreate struct {
 	config
 	mutation *UserTagRelationMutation
 	hooks    []Hook
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (utrc *UserTagRelationCreate) SetCreatedAt(t time.Time) *UserTagRelationCreate {
+	utrc.mutation.SetCreatedAt(t)
+	return utrc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (utrc *UserTagRelationCreate) SetNillableCreatedAt(t *time.Time) *UserTagRelationCreate {
+	if t != nil {
+		utrc.SetCreatedAt(*t)
+	}
+	return utrc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (utrc *UserTagRelationCreate) SetUpdatedAt(t time.Time) *UserTagRelationCreate {
+	utrc.mutation.SetUpdatedAt(t)
+	return utrc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (utrc *UserTagRelationCreate) SetNillableUpdatedAt(t *time.Time) *UserTagRelationCreate {
+	if t != nil {
+		utrc.SetUpdatedAt(*t)
+	}
+	return utrc
+}
+
+// SetUserUUID sets the "user_uuid" field.
+func (utrc *UserTagRelationCreate) SetUserUUID(s string) *UserTagRelationCreate {
+	utrc.mutation.SetUserUUID(s)
+	return utrc
+}
+
+// SetNillableUserUUID sets the "user_uuid" field if the given value is not nil.
+func (utrc *UserTagRelationCreate) SetNillableUserUUID(s *string) *UserTagRelationCreate {
+	if s != nil {
+		utrc.SetUserUUID(*s)
+	}
+	return utrc
+}
+
+// SetTagUUID sets the "tag_uuid" field.
+func (utrc *UserTagRelationCreate) SetTagUUID(s string) *UserTagRelationCreate {
+	utrc.mutation.SetTagUUID(s)
+	return utrc
+}
+
+// SetNillableTagUUID sets the "tag_uuid" field if the given value is not nil.
+func (utrc *UserTagRelationCreate) SetNillableTagUUID(s *string) *UserTagRelationCreate {
+	if s != nil {
+		utrc.SetTagUUID(*s)
+	}
+	return utrc
+}
+
+// SetStatus sets the "status" field.
+func (utrc *UserTagRelationCreate) SetStatus(i int) *UserTagRelationCreate {
+	utrc.mutation.SetStatus(i)
+	return utrc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (utrc *UserTagRelationCreate) SetNillableStatus(i *int) *UserTagRelationCreate {
+	if i != nil {
+		utrc.SetStatus(*i)
+	}
+	return utrc
 }
 
 // Mutation returns the UserTagRelationMutation object of the builder.
@@ -29,6 +101,7 @@ func (utrc *UserTagRelationCreate) Save(ctx context.Context) (*UserTagRelation, 
 		err  error
 		node *UserTagRelation
 	)
+	utrc.defaults()
 	if len(utrc.hooks) == 0 {
 		if err = utrc.check(); err != nil {
 			return nil, err
@@ -86,8 +159,48 @@ func (utrc *UserTagRelationCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (utrc *UserTagRelationCreate) defaults() {
+	if _, ok := utrc.mutation.CreatedAt(); !ok {
+		v := usertagrelation.DefaultCreatedAt()
+		utrc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := utrc.mutation.UpdatedAt(); !ok {
+		v := usertagrelation.DefaultUpdatedAt()
+		utrc.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := utrc.mutation.Status(); !ok {
+		v := usertagrelation.DefaultStatus
+		utrc.mutation.SetStatus(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (utrc *UserTagRelationCreate) check() error {
+	if _, ok := utrc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
+	}
+	if _, ok := utrc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "updated_at"`)}
+	}
+	if v, ok := utrc.mutation.UserUUID(); ok {
+		if err := usertagrelation.UserUUIDValidator(v); err != nil {
+			return &ValidationError{Name: "user_uuid", err: fmt.Errorf(`ent: validator failed for field "user_uuid": %w`, err)}
+		}
+	}
+	if v, ok := utrc.mutation.TagUUID(); ok {
+		if err := usertagrelation.TagUUIDValidator(v); err != nil {
+			return &ValidationError{Name: "tag_uuid", err: fmt.Errorf(`ent: validator failed for field "tag_uuid": %w`, err)}
+		}
+	}
+	if _, ok := utrc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "status"`)}
+	}
+	if v, ok := utrc.mutation.Status(); ok {
+		if err := usertagrelation.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -115,6 +228,46 @@ func (utrc *UserTagRelationCreate) createSpec() (*UserTagRelation, *sqlgraph.Cre
 			},
 		}
 	)
+	if value, ok := utrc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: usertagrelation.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
+	if value, ok := utrc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: usertagrelation.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
+	if value, ok := utrc.mutation.UserUUID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: usertagrelation.FieldUserUUID,
+		})
+		_node.UserUUID = &value
+	}
+	if value, ok := utrc.mutation.TagUUID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: usertagrelation.FieldTagUUID,
+		})
+		_node.TagUUID = &value
+	}
+	if value, ok := utrc.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: usertagrelation.FieldStatus,
+		})
+		_node.Status = value
+	}
 	return _node, _spec
 }
 
@@ -132,6 +285,7 @@ func (utrcb *UserTagRelationCreateBulk) Save(ctx context.Context) ([]*UserTagRel
 	for i := range utrcb.builders {
 		func(i int, root context.Context) {
 			builder := utrcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*UserTagRelationMutation)
 				if !ok {

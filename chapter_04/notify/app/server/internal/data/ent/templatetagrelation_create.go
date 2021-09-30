@@ -4,8 +4,10 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"notify-server/internal/data/ent/templatetagrelation"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -16,6 +18,76 @@ type TemplateTagRelationCreate struct {
 	config
 	mutation *TemplateTagRelationMutation
 	hooks    []Hook
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (ttrc *TemplateTagRelationCreate) SetCreatedAt(t time.Time) *TemplateTagRelationCreate {
+	ttrc.mutation.SetCreatedAt(t)
+	return ttrc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (ttrc *TemplateTagRelationCreate) SetNillableCreatedAt(t *time.Time) *TemplateTagRelationCreate {
+	if t != nil {
+		ttrc.SetCreatedAt(*t)
+	}
+	return ttrc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ttrc *TemplateTagRelationCreate) SetUpdatedAt(t time.Time) *TemplateTagRelationCreate {
+	ttrc.mutation.SetUpdatedAt(t)
+	return ttrc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (ttrc *TemplateTagRelationCreate) SetNillableUpdatedAt(t *time.Time) *TemplateTagRelationCreate {
+	if t != nil {
+		ttrc.SetUpdatedAt(*t)
+	}
+	return ttrc
+}
+
+// SetTemplateUUID sets the "template_uuid" field.
+func (ttrc *TemplateTagRelationCreate) SetTemplateUUID(s string) *TemplateTagRelationCreate {
+	ttrc.mutation.SetTemplateUUID(s)
+	return ttrc
+}
+
+// SetNillableTemplateUUID sets the "template_uuid" field if the given value is not nil.
+func (ttrc *TemplateTagRelationCreate) SetNillableTemplateUUID(s *string) *TemplateTagRelationCreate {
+	if s != nil {
+		ttrc.SetTemplateUUID(*s)
+	}
+	return ttrc
+}
+
+// SetTagUUID sets the "tag_uuid" field.
+func (ttrc *TemplateTagRelationCreate) SetTagUUID(s string) *TemplateTagRelationCreate {
+	ttrc.mutation.SetTagUUID(s)
+	return ttrc
+}
+
+// SetNillableTagUUID sets the "tag_uuid" field if the given value is not nil.
+func (ttrc *TemplateTagRelationCreate) SetNillableTagUUID(s *string) *TemplateTagRelationCreate {
+	if s != nil {
+		ttrc.SetTagUUID(*s)
+	}
+	return ttrc
+}
+
+// SetStatus sets the "status" field.
+func (ttrc *TemplateTagRelationCreate) SetStatus(i int) *TemplateTagRelationCreate {
+	ttrc.mutation.SetStatus(i)
+	return ttrc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ttrc *TemplateTagRelationCreate) SetNillableStatus(i *int) *TemplateTagRelationCreate {
+	if i != nil {
+		ttrc.SetStatus(*i)
+	}
+	return ttrc
 }
 
 // Mutation returns the TemplateTagRelationMutation object of the builder.
@@ -29,6 +101,7 @@ func (ttrc *TemplateTagRelationCreate) Save(ctx context.Context) (*TemplateTagRe
 		err  error
 		node *TemplateTagRelation
 	)
+	ttrc.defaults()
 	if len(ttrc.hooks) == 0 {
 		if err = ttrc.check(); err != nil {
 			return nil, err
@@ -86,8 +159,48 @@ func (ttrc *TemplateTagRelationCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ttrc *TemplateTagRelationCreate) defaults() {
+	if _, ok := ttrc.mutation.CreatedAt(); !ok {
+		v := templatetagrelation.DefaultCreatedAt()
+		ttrc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := ttrc.mutation.UpdatedAt(); !ok {
+		v := templatetagrelation.DefaultUpdatedAt()
+		ttrc.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := ttrc.mutation.Status(); !ok {
+		v := templatetagrelation.DefaultStatus
+		ttrc.mutation.SetStatus(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (ttrc *TemplateTagRelationCreate) check() error {
+	if _, ok := ttrc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
+	}
+	if _, ok := ttrc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "updated_at"`)}
+	}
+	if v, ok := ttrc.mutation.TemplateUUID(); ok {
+		if err := templatetagrelation.TemplateUUIDValidator(v); err != nil {
+			return &ValidationError{Name: "template_uuid", err: fmt.Errorf(`ent: validator failed for field "template_uuid": %w`, err)}
+		}
+	}
+	if v, ok := ttrc.mutation.TagUUID(); ok {
+		if err := templatetagrelation.TagUUIDValidator(v); err != nil {
+			return &ValidationError{Name: "tag_uuid", err: fmt.Errorf(`ent: validator failed for field "tag_uuid": %w`, err)}
+		}
+	}
+	if _, ok := ttrc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "status"`)}
+	}
+	if v, ok := ttrc.mutation.Status(); ok {
+		if err := templatetagrelation.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -115,6 +228,46 @@ func (ttrc *TemplateTagRelationCreate) createSpec() (*TemplateTagRelation, *sqlg
 			},
 		}
 	)
+	if value, ok := ttrc.mutation.CreatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: templatetagrelation.FieldCreatedAt,
+		})
+		_node.CreatedAt = value
+	}
+	if value, ok := ttrc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: templatetagrelation.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
+	if value, ok := ttrc.mutation.TemplateUUID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: templatetagrelation.FieldTemplateUUID,
+		})
+		_node.TemplateUUID = &value
+	}
+	if value, ok := ttrc.mutation.TagUUID(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: templatetagrelation.FieldTagUUID,
+		})
+		_node.TagUUID = &value
+	}
+	if value, ok := ttrc.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: templatetagrelation.FieldStatus,
+		})
+		_node.Status = value
+	}
 	return _node, _spec
 }
 
@@ -132,6 +285,7 @@ func (ttrcb *TemplateTagRelationCreateBulk) Save(ctx context.Context) ([]*Templa
 	for i := range ttrcb.builders {
 		func(i int, root context.Context) {
 			builder := ttrcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TemplateTagRelationMutation)
 				if !ok {

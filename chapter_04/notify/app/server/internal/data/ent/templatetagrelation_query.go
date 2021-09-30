@@ -249,6 +249,19 @@ func (ttrq *TemplateTagRelationQuery) Clone() *TemplateTagRelationQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.TemplateTagRelation.Query().
+//		GroupBy(templatetagrelation.FieldCreatedAt).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
+//
 func (ttrq *TemplateTagRelationQuery) GroupBy(field string, fields ...string) *TemplateTagRelationGroupBy {
 	group := &TemplateTagRelationGroupBy{config: ttrq.config}
 	group.fields = append([]string{field}, fields...)
@@ -263,6 +276,17 @@ func (ttrq *TemplateTagRelationQuery) GroupBy(field string, fields ...string) *T
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		CreatedAt time.Time `json:"created_at,omitempty"`
+//	}
+//
+//	client.TemplateTagRelation.Query().
+//		Select(templatetagrelation.FieldCreatedAt).
+//		Scan(ctx, &v)
+//
 func (ttrq *TemplateTagRelationQuery) Select(fields ...string) *TemplateTagRelationSelect {
 	ttrq.fields = append(ttrq.fields, fields...)
 	return &TemplateTagRelationSelect{TemplateTagRelationQuery: ttrq}

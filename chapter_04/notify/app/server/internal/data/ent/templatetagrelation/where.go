@@ -4,6 +4,7 @@ package templatetagrelation
 
 import (
 	"notify-server/internal/data/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -88,6 +89,519 @@ func IDLT(id int) predicate.TemplateTagRelation {
 func IDLTE(id int) predicate.TemplateTagRelation {
 	return predicate.TemplateTagRelation(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldID), id))
+	})
+}
+
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
+	})
+}
+
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// TemplateUUID applies equality check predicate on the "template_uuid" field. It's identical to TemplateUUIDEQ.
+func TemplateUUID(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TagUUID applies equality check predicate on the "tag_uuid" field. It's identical to TagUUIDEQ.
+func TagUUID(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTagUUID), v))
+	})
+}
+
+// Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
+func Status(v int) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldStatus), v))
+	})
+}
+
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldCreatedAt), v...))
+	})
+}
+
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldCreatedAt), v...))
+	})
+}
+
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldCreatedAt), v))
+	})
+}
+
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldCreatedAt), v))
+	})
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldUpdatedAt), v...))
+	})
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldUpdatedAt), v...))
+	})
+}
+
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// TemplateUUIDEQ applies the EQ predicate on the "template_uuid" field.
+func TemplateUUIDEQ(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDNEQ applies the NEQ predicate on the "template_uuid" field.
+func TemplateUUIDNEQ(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDIn applies the In predicate on the "template_uuid" field.
+func TemplateUUIDIn(vs ...string) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldTemplateUUID), v...))
+	})
+}
+
+// TemplateUUIDNotIn applies the NotIn predicate on the "template_uuid" field.
+func TemplateUUIDNotIn(vs ...string) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldTemplateUUID), v...))
+	})
+}
+
+// TemplateUUIDGT applies the GT predicate on the "template_uuid" field.
+func TemplateUUIDGT(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDGTE applies the GTE predicate on the "template_uuid" field.
+func TemplateUUIDGTE(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDLT applies the LT predicate on the "template_uuid" field.
+func TemplateUUIDLT(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDLTE applies the LTE predicate on the "template_uuid" field.
+func TemplateUUIDLTE(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDContains applies the Contains predicate on the "template_uuid" field.
+func TemplateUUIDContains(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDHasPrefix applies the HasPrefix predicate on the "template_uuid" field.
+func TemplateUUIDHasPrefix(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDHasSuffix applies the HasSuffix predicate on the "template_uuid" field.
+func TemplateUUIDHasSuffix(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDIsNil applies the IsNil predicate on the "template_uuid" field.
+func TemplateUUIDIsNil() predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldTemplateUUID)))
+	})
+}
+
+// TemplateUUIDNotNil applies the NotNil predicate on the "template_uuid" field.
+func TemplateUUIDNotNil() predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldTemplateUUID)))
+	})
+}
+
+// TemplateUUIDEqualFold applies the EqualFold predicate on the "template_uuid" field.
+func TemplateUUIDEqualFold(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TemplateUUIDContainsFold applies the ContainsFold predicate on the "template_uuid" field.
+func TemplateUUIDContainsFold(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldTemplateUUID), v))
+	})
+}
+
+// TagUUIDEQ applies the EQ predicate on the "tag_uuid" field.
+func TagUUIDEQ(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDNEQ applies the NEQ predicate on the "tag_uuid" field.
+func TagUUIDNEQ(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDIn applies the In predicate on the "tag_uuid" field.
+func TagUUIDIn(vs ...string) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldTagUUID), v...))
+	})
+}
+
+// TagUUIDNotIn applies the NotIn predicate on the "tag_uuid" field.
+func TagUUIDNotIn(vs ...string) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldTagUUID), v...))
+	})
+}
+
+// TagUUIDGT applies the GT predicate on the "tag_uuid" field.
+func TagUUIDGT(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDGTE applies the GTE predicate on the "tag_uuid" field.
+func TagUUIDGTE(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDLT applies the LT predicate on the "tag_uuid" field.
+func TagUUIDLT(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDLTE applies the LTE predicate on the "tag_uuid" field.
+func TagUUIDLTE(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDContains applies the Contains predicate on the "tag_uuid" field.
+func TagUUIDContains(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDHasPrefix applies the HasPrefix predicate on the "tag_uuid" field.
+func TagUUIDHasPrefix(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDHasSuffix applies the HasSuffix predicate on the "tag_uuid" field.
+func TagUUIDHasSuffix(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDIsNil applies the IsNil predicate on the "tag_uuid" field.
+func TagUUIDIsNil() predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldTagUUID)))
+	})
+}
+
+// TagUUIDNotNil applies the NotNil predicate on the "tag_uuid" field.
+func TagUUIDNotNil() predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldTagUUID)))
+	})
+}
+
+// TagUUIDEqualFold applies the EqualFold predicate on the "tag_uuid" field.
+func TagUUIDEqualFold(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldTagUUID), v))
+	})
+}
+
+// TagUUIDContainsFold applies the ContainsFold predicate on the "tag_uuid" field.
+func TagUUIDContainsFold(v string) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldTagUUID), v))
+	})
+}
+
+// StatusEQ applies the EQ predicate on the "status" field.
+func StatusEQ(v int) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldStatus), v))
+	})
+}
+
+// StatusNEQ applies the NEQ predicate on the "status" field.
+func StatusNEQ(v int) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldStatus), v))
+	})
+}
+
+// StatusIn applies the In predicate on the "status" field.
+func StatusIn(vs ...int) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldStatus), v...))
+	})
+}
+
+// StatusNotIn applies the NotIn predicate on the "status" field.
+func StatusNotIn(vs ...int) predicate.TemplateTagRelation {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldStatus), v...))
+	})
+}
+
+// StatusGT applies the GT predicate on the "status" field.
+func StatusGT(v int) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldStatus), v))
+	})
+}
+
+// StatusGTE applies the GTE predicate on the "status" field.
+func StatusGTE(v int) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldStatus), v))
+	})
+}
+
+// StatusLT applies the LT predicate on the "status" field.
+func StatusLT(v int) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldStatus), v))
+	})
+}
+
+// StatusLTE applies the LTE predicate on the "status" field.
+func StatusLTE(v int) predicate.TemplateTagRelation {
+	return predicate.TemplateTagRelation(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldStatus), v))
 	})
 }
 

@@ -2,7 +2,10 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"github.com/pkg/errors"
+	"log"
+	"notify-server/internal/pkg/enum"
 	"time"
 )
 
@@ -22,6 +25,10 @@ type UserRepo interface {
 	QueryUserByMobile(context.Context, string) (*User, error)
 	SyncUser(context.Context, User) (int, error)
 	UpdateUserStatus(context.Context, string, int) (int, error)
+	AddTags(ctx context.Context, userUuid string, tagUuids []string) (int, error)
+	DeleteTags(ctx context.Context, userUuid string) (int, error)
+	DisbandTags(ctx context.Context, userUuid string, tagUuids []string) (int, error)
+	UpdateTagRelationsStatus(ctx context.Context, userUuid string, status int, tagUuids ...string) (int, error)
 }
 
 type UserUseCase struct {
@@ -65,5 +72,37 @@ func (uc *UserUseCase) UpdateUserStatus(ctx context.Context, user User) error {
 	if err != nil {
 		return errors.WithMessage(err, "UpdateUserStatus修改用户状态失败")
 	}
+	var status int
+	var logStr string
+	if user.Status == enum.USER_STATUS_AVAILABLE { //启用
+		status = enum.RELATION_USER_TAG_AVAILABLE
+		logStr = "启用"
+	} else { //禁用
+		status = enum.RELATION_USER_TAG_UNAVAILABLE
+		logStr = "禁用"
+	}
+	count, err := uc.repo.UpdateTagRelationsStatus(ctx, user.Uuid, status)
+	if err != nil {
+		return errors.WithMessage(err, fmt.Sprintf("%v用户[%v]修改状态失败[%v]", logStr, user.Uuid, count))
+	}
+	log.Println(fmt.Sprintf("%v用户[%v]修改状态成功[%v]", logStr, user.Uuid, count))
+	return nil
+}
+
+func (uc *UserUseCase) AddTags(ctx context.Context, userUuid string, tagUuids []string) error {
+
+	//删除关系
+	count, err := uc.repo.DeleteTags(ctx, userUuid)
+	if err != nil {
+		return errors.WithMessage(err, "添加标签时,删除老的标签关系失败")
+	}
+	log.Println(fmt.Sprintf("添加标签时,删除老的标签关系成功[%v]", count))
+
+	//重建关系
+	count, err = uc.repo.AddTags(ctx, userUuid, tagUuids)
+	if err != nil {
+		return errors.WithMessage(err, fmt.Sprintf("给用户[%v]重建标签关系失败[%v]", userUuid, count))
+	}
+	log.Println(fmt.Sprintf("给用户[%v]重建标签关系成功[%v]", userUuid, count))
 	return nil
 }

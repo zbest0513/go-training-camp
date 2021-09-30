@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
+	"notify-server/internal/pkg/enum"
 	"time"
 )
 
@@ -38,7 +39,7 @@ func (Template) Fields() []ent.Field {
 			NotEmpty().MaxLen(100),
 		field.String("content"),
 		field.Int("status").
-			Default(1).NonNegative(),
+			Default(enum.TEMPLATE_STATUS_AVAILABLE).NonNegative(),
 	}
 }
 

@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
+	"notify-server/internal/pkg/enum"
 	"time"
 )
 
@@ -22,10 +23,10 @@ func (UserTagRelation) Fields() []ent.Field {
 			dialect.MySQL: "datetime",
 		}).Default(time.Now).
 			UpdateDefault(time.Now),
-		field.String("user_uuid").Nillable().NotEmpty(),
-		field.String("tag_uuid").Nillable().NotEmpty(),
+		field.String("user_uuid").Optional().Nillable().NotEmpty(),
+		field.String("tag_uuid").Optional().Nillable().NotEmpty(),
 		field.Int("status").
-			Default(1).NonNegative(),
+			Default(enum.RELATION_USER_TAG_AVAILABLE).NonNegative(),
 	}
 }
 

@@ -8,7 +8,9 @@ import (
 	"notify-server/internal/data/ent/predicate"
 	"notify-server/internal/data/ent/tag"
 	"notify-server/internal/data/ent/template"
+	"notify-server/internal/data/ent/templatetagrelation"
 	"notify-server/internal/data/ent/user"
+	"notify-server/internal/data/ent/usertagrelation"
 	"sync"
 	"time"
 
@@ -1287,6 +1289,12 @@ type TemplateTagRelationMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	created_at    *time.Time
+	updated_at    *time.Time
+	template_uuid *string
+	tag_uuid      *string
+	status        *int
+	addstatus     *int
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*TemplateTagRelation, error)
@@ -1372,6 +1380,232 @@ func (m *TemplateTagRelationMutation) ID() (id int, exists bool) {
 	return *m.id, true
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (m *TemplateTagRelationMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *TemplateTagRelationMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the TemplateTagRelation entity.
+// If the TemplateTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TemplateTagRelationMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *TemplateTagRelationMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *TemplateTagRelationMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *TemplateTagRelationMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the TemplateTagRelation entity.
+// If the TemplateTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TemplateTagRelationMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *TemplateTagRelationMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetTemplateUUID sets the "template_uuid" field.
+func (m *TemplateTagRelationMutation) SetTemplateUUID(s string) {
+	m.template_uuid = &s
+}
+
+// TemplateUUID returns the value of the "template_uuid" field in the mutation.
+func (m *TemplateTagRelationMutation) TemplateUUID() (r string, exists bool) {
+	v := m.template_uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTemplateUUID returns the old "template_uuid" field's value of the TemplateTagRelation entity.
+// If the TemplateTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TemplateTagRelationMutation) OldTemplateUUID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldTemplateUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldTemplateUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTemplateUUID: %w", err)
+	}
+	return oldValue.TemplateUUID, nil
+}
+
+// ClearTemplateUUID clears the value of the "template_uuid" field.
+func (m *TemplateTagRelationMutation) ClearTemplateUUID() {
+	m.template_uuid = nil
+	m.clearedFields[templatetagrelation.FieldTemplateUUID] = struct{}{}
+}
+
+// TemplateUUIDCleared returns if the "template_uuid" field was cleared in this mutation.
+func (m *TemplateTagRelationMutation) TemplateUUIDCleared() bool {
+	_, ok := m.clearedFields[templatetagrelation.FieldTemplateUUID]
+	return ok
+}
+
+// ResetTemplateUUID resets all changes to the "template_uuid" field.
+func (m *TemplateTagRelationMutation) ResetTemplateUUID() {
+	m.template_uuid = nil
+	delete(m.clearedFields, templatetagrelation.FieldTemplateUUID)
+}
+
+// SetTagUUID sets the "tag_uuid" field.
+func (m *TemplateTagRelationMutation) SetTagUUID(s string) {
+	m.tag_uuid = &s
+}
+
+// TagUUID returns the value of the "tag_uuid" field in the mutation.
+func (m *TemplateTagRelationMutation) TagUUID() (r string, exists bool) {
+	v := m.tag_uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTagUUID returns the old "tag_uuid" field's value of the TemplateTagRelation entity.
+// If the TemplateTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TemplateTagRelationMutation) OldTagUUID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldTagUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldTagUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTagUUID: %w", err)
+	}
+	return oldValue.TagUUID, nil
+}
+
+// ClearTagUUID clears the value of the "tag_uuid" field.
+func (m *TemplateTagRelationMutation) ClearTagUUID() {
+	m.tag_uuid = nil
+	m.clearedFields[templatetagrelation.FieldTagUUID] = struct{}{}
+}
+
+// TagUUIDCleared returns if the "tag_uuid" field was cleared in this mutation.
+func (m *TemplateTagRelationMutation) TagUUIDCleared() bool {
+	_, ok := m.clearedFields[templatetagrelation.FieldTagUUID]
+	return ok
+}
+
+// ResetTagUUID resets all changes to the "tag_uuid" field.
+func (m *TemplateTagRelationMutation) ResetTagUUID() {
+	m.tag_uuid = nil
+	delete(m.clearedFields, templatetagrelation.FieldTagUUID)
+}
+
+// SetStatus sets the "status" field.
+func (m *TemplateTagRelationMutation) SetStatus(i int) {
+	m.status = &i
+	m.addstatus = nil
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *TemplateTagRelationMutation) Status() (r int, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the TemplateTagRelation entity.
+// If the TemplateTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TemplateTagRelationMutation) OldStatus(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// AddStatus adds i to the "status" field.
+func (m *TemplateTagRelationMutation) AddStatus(i int) {
+	if m.addstatus != nil {
+		*m.addstatus += i
+	} else {
+		m.addstatus = &i
+	}
+}
+
+// AddedStatus returns the value that was added to the "status" field in this mutation.
+func (m *TemplateTagRelationMutation) AddedStatus() (r int, exists bool) {
+	v := m.addstatus
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *TemplateTagRelationMutation) ResetStatus() {
+	m.status = nil
+	m.addstatus = nil
+}
+
 // Where appends a list predicates to the TemplateTagRelationMutation builder.
 func (m *TemplateTagRelationMutation) Where(ps ...predicate.TemplateTagRelation) {
 	m.predicates = append(m.predicates, ps...)
@@ -1391,7 +1625,22 @@ func (m *TemplateTagRelationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TemplateTagRelationMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 5)
+	if m.created_at != nil {
+		fields = append(fields, templatetagrelation.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, templatetagrelation.FieldUpdatedAt)
+	}
+	if m.template_uuid != nil {
+		fields = append(fields, templatetagrelation.FieldTemplateUUID)
+	}
+	if m.tag_uuid != nil {
+		fields = append(fields, templatetagrelation.FieldTagUUID)
+	}
+	if m.status != nil {
+		fields = append(fields, templatetagrelation.FieldStatus)
+	}
 	return fields
 }
 
@@ -1399,6 +1648,18 @@ func (m *TemplateTagRelationMutation) Fields() []string {
 // return value indicates that this field was not set, or was not defined in the
 // schema.
 func (m *TemplateTagRelationMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case templatetagrelation.FieldCreatedAt:
+		return m.CreatedAt()
+	case templatetagrelation.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case templatetagrelation.FieldTemplateUUID:
+		return m.TemplateUUID()
+	case templatetagrelation.FieldTagUUID:
+		return m.TagUUID()
+	case templatetagrelation.FieldStatus:
+		return m.Status()
+	}
 	return nil, false
 }
 
@@ -1406,6 +1667,18 @@ func (m *TemplateTagRelationMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *TemplateTagRelationMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case templatetagrelation.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case templatetagrelation.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case templatetagrelation.FieldTemplateUUID:
+		return m.OldTemplateUUID(ctx)
+	case templatetagrelation.FieldTagUUID:
+		return m.OldTagUUID(ctx)
+	case templatetagrelation.FieldStatus:
+		return m.OldStatus(ctx)
+	}
 	return nil, fmt.Errorf("unknown TemplateTagRelation field %s", name)
 }
 
@@ -1414,6 +1687,41 @@ func (m *TemplateTagRelationMutation) OldField(ctx context.Context, name string)
 // type.
 func (m *TemplateTagRelationMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case templatetagrelation.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case templatetagrelation.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case templatetagrelation.FieldTemplateUUID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTemplateUUID(v)
+		return nil
+	case templatetagrelation.FieldTagUUID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTagUUID(v)
+		return nil
+	case templatetagrelation.FieldStatus:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
 	}
 	return fmt.Errorf("unknown TemplateTagRelation field %s", name)
 }
@@ -1421,13 +1729,21 @@ func (m *TemplateTagRelationMutation) SetField(name string, value ent.Value) err
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *TemplateTagRelationMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addstatus != nil {
+		fields = append(fields, templatetagrelation.FieldStatus)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *TemplateTagRelationMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case templatetagrelation.FieldStatus:
+		return m.AddedStatus()
+	}
 	return nil, false
 }
 
@@ -1435,13 +1751,29 @@ func (m *TemplateTagRelationMutation) AddedField(name string) (ent.Value, bool) 
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *TemplateTagRelationMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case templatetagrelation.FieldStatus:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddStatus(v)
+		return nil
+	}
 	return fmt.Errorf("unknown TemplateTagRelation numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *TemplateTagRelationMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(templatetagrelation.FieldTemplateUUID) {
+		fields = append(fields, templatetagrelation.FieldTemplateUUID)
+	}
+	if m.FieldCleared(templatetagrelation.FieldTagUUID) {
+		fields = append(fields, templatetagrelation.FieldTagUUID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -1454,12 +1786,37 @@ func (m *TemplateTagRelationMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *TemplateTagRelationMutation) ClearField(name string) error {
+	switch name {
+	case templatetagrelation.FieldTemplateUUID:
+		m.ClearTemplateUUID()
+		return nil
+	case templatetagrelation.FieldTagUUID:
+		m.ClearTagUUID()
+		return nil
+	}
 	return fmt.Errorf("unknown TemplateTagRelation nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
 func (m *TemplateTagRelationMutation) ResetField(name string) error {
+	switch name {
+	case templatetagrelation.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case templatetagrelation.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case templatetagrelation.FieldTemplateUUID:
+		m.ResetTemplateUUID()
+		return nil
+	case templatetagrelation.FieldTagUUID:
+		m.ResetTagUUID()
+		return nil
+	case templatetagrelation.FieldStatus:
+		m.ResetStatus()
+		return nil
+	}
 	return fmt.Errorf("unknown TemplateTagRelation field %s", name)
 }
 
@@ -2169,6 +2526,12 @@ type UserTagRelationMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	created_at    *time.Time
+	updated_at    *time.Time
+	user_uuid     *string
+	tag_uuid      *string
+	status        *int
+	addstatus     *int
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*UserTagRelation, error)
@@ -2254,6 +2617,232 @@ func (m *UserTagRelationMutation) ID() (id int, exists bool) {
 	return *m.id, true
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (m *UserTagRelationMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *UserTagRelationMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the UserTagRelation entity.
+// If the UserTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserTagRelationMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *UserTagRelationMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *UserTagRelationMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *UserTagRelationMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the UserTagRelation entity.
+// If the UserTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserTagRelationMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *UserTagRelationMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetUserUUID sets the "user_uuid" field.
+func (m *UserTagRelationMutation) SetUserUUID(s string) {
+	m.user_uuid = &s
+}
+
+// UserUUID returns the value of the "user_uuid" field in the mutation.
+func (m *UserTagRelationMutation) UserUUID() (r string, exists bool) {
+	v := m.user_uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserUUID returns the old "user_uuid" field's value of the UserTagRelation entity.
+// If the UserTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserTagRelationMutation) OldUserUUID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldUserUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldUserUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserUUID: %w", err)
+	}
+	return oldValue.UserUUID, nil
+}
+
+// ClearUserUUID clears the value of the "user_uuid" field.
+func (m *UserTagRelationMutation) ClearUserUUID() {
+	m.user_uuid = nil
+	m.clearedFields[usertagrelation.FieldUserUUID] = struct{}{}
+}
+
+// UserUUIDCleared returns if the "user_uuid" field was cleared in this mutation.
+func (m *UserTagRelationMutation) UserUUIDCleared() bool {
+	_, ok := m.clearedFields[usertagrelation.FieldUserUUID]
+	return ok
+}
+
+// ResetUserUUID resets all changes to the "user_uuid" field.
+func (m *UserTagRelationMutation) ResetUserUUID() {
+	m.user_uuid = nil
+	delete(m.clearedFields, usertagrelation.FieldUserUUID)
+}
+
+// SetTagUUID sets the "tag_uuid" field.
+func (m *UserTagRelationMutation) SetTagUUID(s string) {
+	m.tag_uuid = &s
+}
+
+// TagUUID returns the value of the "tag_uuid" field in the mutation.
+func (m *UserTagRelationMutation) TagUUID() (r string, exists bool) {
+	v := m.tag_uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTagUUID returns the old "tag_uuid" field's value of the UserTagRelation entity.
+// If the UserTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserTagRelationMutation) OldTagUUID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldTagUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldTagUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTagUUID: %w", err)
+	}
+	return oldValue.TagUUID, nil
+}
+
+// ClearTagUUID clears the value of the "tag_uuid" field.
+func (m *UserTagRelationMutation) ClearTagUUID() {
+	m.tag_uuid = nil
+	m.clearedFields[usertagrelation.FieldTagUUID] = struct{}{}
+}
+
+// TagUUIDCleared returns if the "tag_uuid" field was cleared in this mutation.
+func (m *UserTagRelationMutation) TagUUIDCleared() bool {
+	_, ok := m.clearedFields[usertagrelation.FieldTagUUID]
+	return ok
+}
+
+// ResetTagUUID resets all changes to the "tag_uuid" field.
+func (m *UserTagRelationMutation) ResetTagUUID() {
+	m.tag_uuid = nil
+	delete(m.clearedFields, usertagrelation.FieldTagUUID)
+}
+
+// SetStatus sets the "status" field.
+func (m *UserTagRelationMutation) SetStatus(i int) {
+	m.status = &i
+	m.addstatus = nil
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *UserTagRelationMutation) Status() (r int, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the UserTagRelation entity.
+// If the UserTagRelation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserTagRelationMutation) OldStatus(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// AddStatus adds i to the "status" field.
+func (m *UserTagRelationMutation) AddStatus(i int) {
+	if m.addstatus != nil {
+		*m.addstatus += i
+	} else {
+		m.addstatus = &i
+	}
+}
+
+// AddedStatus returns the value that was added to the "status" field in this mutation.
+func (m *UserTagRelationMutation) AddedStatus() (r int, exists bool) {
+	v := m.addstatus
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *UserTagRelationMutation) ResetStatus() {
+	m.status = nil
+	m.addstatus = nil
+}
+
 // Where appends a list predicates to the UserTagRelationMutation builder.
 func (m *UserTagRelationMutation) Where(ps ...predicate.UserTagRelation) {
 	m.predicates = append(m.predicates, ps...)
@@ -2273,7 +2862,22 @@ func (m *UserTagRelationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserTagRelationMutation) Fields() []string {
-	fields := make([]string, 0, 0)
+	fields := make([]string, 0, 5)
+	if m.created_at != nil {
+		fields = append(fields, usertagrelation.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, usertagrelation.FieldUpdatedAt)
+	}
+	if m.user_uuid != nil {
+		fields = append(fields, usertagrelation.FieldUserUUID)
+	}
+	if m.tag_uuid != nil {
+		fields = append(fields, usertagrelation.FieldTagUUID)
+	}
+	if m.status != nil {
+		fields = append(fields, usertagrelation.FieldStatus)
+	}
 	return fields
 }
 
@@ -2281,6 +2885,18 @@ func (m *UserTagRelationMutation) Fields() []string {
 // return value indicates that this field was not set, or was not defined in the
 // schema.
 func (m *UserTagRelationMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case usertagrelation.FieldCreatedAt:
+		return m.CreatedAt()
+	case usertagrelation.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case usertagrelation.FieldUserUUID:
+		return m.UserUUID()
+	case usertagrelation.FieldTagUUID:
+		return m.TagUUID()
+	case usertagrelation.FieldStatus:
+		return m.Status()
+	}
 	return nil, false
 }
 
@@ -2288,6 +2904,18 @@ func (m *UserTagRelationMutation) Field(name string) (ent.Value, bool) {
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *UserTagRelationMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case usertagrelation.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case usertagrelation.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case usertagrelation.FieldUserUUID:
+		return m.OldUserUUID(ctx)
+	case usertagrelation.FieldTagUUID:
+		return m.OldTagUUID(ctx)
+	case usertagrelation.FieldStatus:
+		return m.OldStatus(ctx)
+	}
 	return nil, fmt.Errorf("unknown UserTagRelation field %s", name)
 }
 
@@ -2296,6 +2924,41 @@ func (m *UserTagRelationMutation) OldField(ctx context.Context, name string) (en
 // type.
 func (m *UserTagRelationMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case usertagrelation.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case usertagrelation.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case usertagrelation.FieldUserUUID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserUUID(v)
+		return nil
+	case usertagrelation.FieldTagUUID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTagUUID(v)
+		return nil
+	case usertagrelation.FieldStatus:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
 	}
 	return fmt.Errorf("unknown UserTagRelation field %s", name)
 }
@@ -2303,13 +2966,21 @@ func (m *UserTagRelationMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *UserTagRelationMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addstatus != nil {
+		fields = append(fields, usertagrelation.FieldStatus)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *UserTagRelationMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case usertagrelation.FieldStatus:
+		return m.AddedStatus()
+	}
 	return nil, false
 }
 
@@ -2317,13 +2988,29 @@ func (m *UserTagRelationMutation) AddedField(name string) (ent.Value, bool) {
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *UserTagRelationMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case usertagrelation.FieldStatus:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddStatus(v)
+		return nil
+	}
 	return fmt.Errorf("unknown UserTagRelation numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UserTagRelationMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(usertagrelation.FieldUserUUID) {
+		fields = append(fields, usertagrelation.FieldUserUUID)
+	}
+	if m.FieldCleared(usertagrelation.FieldTagUUID) {
+		fields = append(fields, usertagrelation.FieldTagUUID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2336,12 +3023,37 @@ func (m *UserTagRelationMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UserTagRelationMutation) ClearField(name string) error {
+	switch name {
+	case usertagrelation.FieldUserUUID:
+		m.ClearUserUUID()
+		return nil
+	case usertagrelation.FieldTagUUID:
+		m.ClearTagUUID()
+		return nil
+	}
 	return fmt.Errorf("unknown UserTagRelation nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
 func (m *UserTagRelationMutation) ResetField(name string) error {
+	switch name {
+	case usertagrelation.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case usertagrelation.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case usertagrelation.FieldUserUUID:
+		m.ResetUserUUID()
+		return nil
+	case usertagrelation.FieldTagUUID:
+		m.ResetTagUUID()
+		return nil
+	case usertagrelation.FieldStatus:
+		m.ResetStatus()
+		return nil
+	}
 	return fmt.Errorf("unknown UserTagRelation field %s", name)
 }
 

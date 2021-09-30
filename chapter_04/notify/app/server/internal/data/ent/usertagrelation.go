@@ -6,15 +6,26 @@ import (
 	"fmt"
 	"notify-server/internal/data/ent/usertagrelation"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
 
 // UserTagRelation is the model entity for the UserTagRelation schema.
 type UserTagRelation struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// UserUUID holds the value of the "user_uuid" field.
+	UserUUID *string `json:"user_uuid,omitempty"`
+	// TagUUID holds the value of the "tag_uuid" field.
+	TagUUID *string `json:"tag_uuid,omitempty"`
+	// Status holds the value of the "status" field.
+	Status int `json:"status,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -22,8 +33,12 @@ func (*UserTagRelation) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case usertagrelation.FieldID:
+		case usertagrelation.FieldID, usertagrelation.FieldStatus:
 			values[i] = new(sql.NullInt64)
+		case usertagrelation.FieldUserUUID, usertagrelation.FieldTagUUID:
+			values[i] = new(sql.NullString)
+		case usertagrelation.FieldCreatedAt, usertagrelation.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type UserTagRelation", columns[i])
 		}
@@ -45,6 +60,38 @@ func (utr *UserTagRelation) assignValues(columns []string, values []interface{})
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			utr.ID = int(value.Int64)
+		case usertagrelation.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				utr.CreatedAt = value.Time
+			}
+		case usertagrelation.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				utr.UpdatedAt = value.Time
+			}
+		case usertagrelation.FieldUserUUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field user_uuid", values[i])
+			} else if value.Valid {
+				utr.UserUUID = new(string)
+				*utr.UserUUID = value.String
+			}
+		case usertagrelation.FieldTagUUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tag_uuid", values[i])
+			} else if value.Valid {
+				utr.TagUUID = new(string)
+				*utr.TagUUID = value.String
+			}
+		case usertagrelation.FieldStatus:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				utr.Status = int(value.Int64)
+			}
 		}
 	}
 	return nil
@@ -73,6 +120,20 @@ func (utr *UserTagRelation) String() string {
 	var builder strings.Builder
 	builder.WriteString("UserTagRelation(")
 	builder.WriteString(fmt.Sprintf("id=%v", utr.ID))
+	builder.WriteString(", created_at=")
+	builder.WriteString(utr.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", updated_at=")
+	builder.WriteString(utr.UpdatedAt.Format(time.ANSIC))
+	if v := utr.UserUUID; v != nil {
+		builder.WriteString(", user_uuid=")
+		builder.WriteString(*v)
+	}
+	if v := utr.TagUUID; v != nil {
+		builder.WriteString(", tag_uuid=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", status=")
+	builder.WriteString(fmt.Sprintf("%v", utr.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }

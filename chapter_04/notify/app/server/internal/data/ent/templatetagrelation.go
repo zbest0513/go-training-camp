@@ -6,15 +6,26 @@ import (
 	"fmt"
 	"notify-server/internal/data/ent/templatetagrelation"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
 
 // TemplateTagRelation is the model entity for the TemplateTagRelation schema.
 type TemplateTagRelation struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// TemplateUUID holds the value of the "template_uuid" field.
+	TemplateUUID *string `json:"template_uuid,omitempty"`
+	// TagUUID holds the value of the "tag_uuid" field.
+	TagUUID *string `json:"tag_uuid,omitempty"`
+	// Status holds the value of the "status" field.
+	Status int `json:"status,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -22,8 +33,12 @@ func (*TemplateTagRelation) scanValues(columns []string) ([]interface{}, error) 
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case templatetagrelation.FieldID:
+		case templatetagrelation.FieldID, templatetagrelation.FieldStatus:
 			values[i] = new(sql.NullInt64)
+		case templatetagrelation.FieldTemplateUUID, templatetagrelation.FieldTagUUID:
+			values[i] = new(sql.NullString)
+		case templatetagrelation.FieldCreatedAt, templatetagrelation.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type TemplateTagRelation", columns[i])
 		}
@@ -45,6 +60,38 @@ func (ttr *TemplateTagRelation) assignValues(columns []string, values []interfac
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			ttr.ID = int(value.Int64)
+		case templatetagrelation.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				ttr.CreatedAt = value.Time
+			}
+		case templatetagrelation.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				ttr.UpdatedAt = value.Time
+			}
+		case templatetagrelation.FieldTemplateUUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field template_uuid", values[i])
+			} else if value.Valid {
+				ttr.TemplateUUID = new(string)
+				*ttr.TemplateUUID = value.String
+			}
+		case templatetagrelation.FieldTagUUID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tag_uuid", values[i])
+			} else if value.Valid {
+				ttr.TagUUID = new(string)
+				*ttr.TagUUID = value.String
+			}
+		case templatetagrelation.FieldStatus:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				ttr.Status = int(value.Int64)
+			}
 		}
 	}
 	return nil
@@ -73,6 +120,20 @@ func (ttr *TemplateTagRelation) String() string {
 	var builder strings.Builder
 	builder.WriteString("TemplateTagRelation(")
 	builder.WriteString(fmt.Sprintf("id=%v", ttr.ID))
+	builder.WriteString(", created_at=")
+	builder.WriteString(ttr.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", updated_at=")
+	builder.WriteString(ttr.UpdatedAt.Format(time.ANSIC))
+	if v := ttr.TemplateUUID; v != nil {
+		builder.WriteString(", template_uuid=")
+		builder.WriteString(*v)
+	}
+	if v := ttr.TagUUID; v != nil {
+		builder.WriteString(", tag_uuid=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", status=")
+	builder.WriteString(fmt.Sprintf("%v", ttr.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }
