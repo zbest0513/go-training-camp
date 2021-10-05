@@ -19,11 +19,11 @@ var ProviderSetPkg = wire.NewSet(NewApp)
 
 type App struct {
 	config        *config.Config
-	MonitorRouter *router.MonitorRouter
+	MonitorRouter *router.DocRouter
 	ManageRouter  *router.ManageRouter
 }
 
-func NewApp(config *config.Config, MonitorRouter *router.MonitorRouter, ManageRouter *router.ManageRouter) (*App, error) {
+func NewApp(config *config.Config, MonitorRouter *router.DocRouter, ManageRouter *router.ManageRouter) (*App, error) {
 	return &App{
 		config:        config,
 		MonitorRouter: MonitorRouter,

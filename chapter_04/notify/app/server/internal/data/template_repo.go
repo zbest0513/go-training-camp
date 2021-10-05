@@ -38,7 +38,7 @@ func (tr *templateRepo) CreateTemplate(ctx context.Context, template biz.Templat
 		Content:   t.Content,
 		CreatedAt: t.CreatedAt,
 		UpdatedAt: t.UpdatedAt,
-		Status:    (int8)(t.Status),
+		Status:    t.Status,
 		Uuid:      t.UUID,
 		Id:        t.ID,
 	}
@@ -108,7 +108,7 @@ func (tr *templateRepo) QueryTags(ctx context.Context, uuid string) ([]*biz.Tag,
 			tag.UUID,
 			tag.Name,
 			tag.Desc,
-			(int8)(tag.Status),
+			tag.Status,
 			tag.CreatedAt,
 			tag.UpdatedAt,
 		}

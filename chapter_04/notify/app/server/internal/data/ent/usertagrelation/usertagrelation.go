@@ -22,7 +22,7 @@ const (
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// Table holds the table name of the usertagrelation in the database.
-	Table = "user_tag_relations"
+	Table = "notify_user_tag"
 )
 
 // Columns holds all SQL columns for usertagrelation fields.

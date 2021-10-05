@@ -37,7 +37,7 @@ func (tr *tagRepo) CreateTag(ctx context.Context, tag biz.Tag) (*biz.Tag, error)
 		Desc:      t.Desc,
 		CreatedAt: t.CreatedAt,
 		UpdatedAt: t.UpdatedAt,
-		Status:    (int8)(t.Status),
+		Status:    t.Status,
 		Uuid:      t.UUID,
 		Id:        t.ID,
 	}
@@ -55,7 +55,7 @@ func (tr *tagRepo) QueryTagByName(ctx context.Context, name string) (*biz.Tag, e
 		Desc:      t.Desc,
 		CreatedAt: t.CreatedAt,
 		UpdatedAt: t.UpdatedAt,
-		Status:    (int8)(t.Status),
+		Status:    t.Status,
 		Uuid:      t.UUID,
 		Id:        t.ID,
 	}
@@ -139,14 +139,14 @@ func (tr *tagRepo) QueryUsers(ctx context.Context, uuid string) ([]*biz.User, er
 
 	for i := 0; i < count; i++ {
 		result[i] = &biz.User{
-			users[i].ID,
-			users[i].UUID,
-			users[i].Name,
-			users[i].Mobile,
-			users[i].Email,
-			(int8)(users[i].Status),
-			users[i].CreatedAt,
-			users[i].UpdatedAt,
+			Id:        users[i].ID,
+			Uuid:      users[i].UUID,
+			Name:      users[i].Name,
+			Mobile:    users[i].Mobile,
+			Email:     users[i].Email,
+			Status:    users[i].Status,
+			CreatedAt: users[i].CreatedAt,
+			UpdatedAt: users[i].UpdatedAt,
 		}
 	}
 	return result, nil

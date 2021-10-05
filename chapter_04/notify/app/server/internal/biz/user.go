@@ -15,7 +15,7 @@ type User struct {
 	Name      string
 	Mobile    string
 	Email     string
-	Status    int8
+	Status    int
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -29,6 +29,7 @@ type UserRepo interface {
 	DeleteTags(ctx context.Context, userUuid string) (int, error)
 	DisbandTags(ctx context.Context, userUuid string, tagUuids []string) (int, error)
 	UpdateTagRelationsStatus(ctx context.Context, userUuid string, status int, tagUuids ...string) (int, error)
+	QueryAll(ctx context.Context) ([]*User, error)
 }
 
 type UserUseCase struct {
@@ -40,6 +41,8 @@ func NewUserUseCase(up UserRepo) *UserUseCase {
 		repo: up,
 	}
 }
+
+// CreateUser 创建用户
 func (uc *UserUseCase) CreateUser(ctx context.Context, user User) (*User, error) {
 
 	mobile, err := uc.repo.QueryUserByMobile(ctx, user.Mobile)
@@ -67,28 +70,30 @@ func (uc *UserUseCase) CreateUser(ctx context.Context, user User) (*User, error)
 	}
 }
 
-func (uc *UserUseCase) UpdateUserStatus(ctx context.Context, user User) error {
-	_, err := uc.repo.UpdateUserStatus(ctx, user.Uuid, int(user.Status))
+// UpdateUserStatus 启用/禁用用户
+func (uc *UserUseCase) UpdateUserStatus(ctx context.Context, uuid string, status int) error {
+	_, err := uc.repo.UpdateUserStatus(ctx, uuid, status)
 	if err != nil {
 		return errors.WithMessage(err, "UpdateUserStatus修改用户状态失败")
 	}
-	var status int
+	var rStatus int
 	var logStr string
-	if user.Status == enum.USER_STATUS_AVAILABLE { //启用
-		status = enum.RELATION_USER_TAG_AVAILABLE
+	if status == enum.USER_STATUS_AVAILABLE { //启用
+		rStatus = enum.RELATION_USER_TAG_AVAILABLE
 		logStr = "启用"
 	} else { //禁用
-		status = enum.RELATION_USER_TAG_UNAVAILABLE
+		rStatus = enum.RELATION_USER_TAG_UNAVAILABLE
 		logStr = "禁用"
 	}
-	count, err := uc.repo.UpdateTagRelationsStatus(ctx, user.Uuid, status)
+	count, err := uc.repo.UpdateTagRelationsStatus(ctx, uuid, rStatus)
 	if err != nil {
-		return errors.WithMessage(err, fmt.Sprintf("%v用户[%v]修改状态失败[%v]", logStr, user.Uuid, count))
+		return errors.WithMessage(err, fmt.Sprintf("%v用户[%v]修改状态失败[%v]", logStr, uuid, count))
 	}
-	log.Println(fmt.Sprintf("%v用户[%v]修改状态成功[%v]", logStr, user.Uuid, count))
+	log.Println(fmt.Sprintf("%v用户[%v]修改状态成功[%v]", logStr, uuid, count))
 	return nil
 }
 
+// AddTags 给用添加标签
 func (uc *UserUseCase) AddTags(ctx context.Context, userUuid string, tagUuids []string) error {
 
 	//删除关系
@@ -105,4 +110,18 @@ func (uc *UserUseCase) AddTags(ctx context.Context, userUuid string, tagUuids []
 	}
 	log.Println(fmt.Sprintf("给用户[%v]重建标签关系成功[%v]", userUuid, count))
 	return nil
+}
+
+// QueryByMobile 根据手机号查询用户
+func (uc *UserUseCase) QueryByMobile(ctx context.Context, mobile string) (*User, error) {
+	return uc.repo.QueryUserByMobile(ctx, mobile)
+}
+
+// QueryAll 查询用户列表
+func (uc *UserUseCase) QueryAll(ctx context.Context) ([]*User, error) {
+	all, err := uc.repo.QueryAll(ctx)
+	if err != nil {
+		return nil, errors.WithMessage(err, "biz查询用户列表失败")
+	}
+	return all, nil
 }

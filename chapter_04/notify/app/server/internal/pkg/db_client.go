@@ -35,7 +35,7 @@ func (connector) Driver() driver.Driver {
 // NewClient new connection and start stats recorder.
 func NewClient(vip *config.Config) *ent.Client {
 	var viper = vip.Vip
-	dsn := fmt.Sprintf("%s:%s@%s(%s:%d)/%s", viper.GetString("mysql.username"), viper.
+	dsn := fmt.Sprintf("%s:%s@%s(%s:%d)/%s?charset=utf8&parseTime=true", viper.GetString("mysql.username"), viper.
 		GetString("mysql.password"), viper.GetString("mysql.network"), viper.
 		GetString("mysql.server"), viper.GetInt("mysql.port"), viper.GetString("mysql.database"))
 	db := sql.OpenDB(connector{dsn})

@@ -10,7 +10,7 @@ import (
 	"notify-server/internal/biz"
 	"notify-server/internal/data"
 	"notify-server/internal/pkg"
-	"notify-server/internal/service/handle"
+	"notify-server/internal/service"
 	"notify-server/internal/service/router"
 	"notify/pkg/config"
 )
@@ -25,12 +25,20 @@ func initApp(fc config.FileConfig) (*pkg.App, error) {
 	client := data.NewEntClient(configConfig)
 	userRepo := data.NewUserRepo(client)
 	userUseCase := biz.NewUserUseCase(userRepo)
-	userService := handle.NewUserService(userUseCase)
-	monitorRouter := &router.MonitorRouter{
-		ManageApi: userService,
+	userService := service.NewUserService(userUseCase)
+	monitorRouter := &router.DocRouter{
+		UserApi: userService,
 	}
+	tagRepo := data.NewTagRepo(client)
+	tagUseCase := biz.NewTagUseCase(tagRepo)
+	tagService := service.NewTagService(tagUseCase)
+	templateRepo := data.NewTemplateRepo(client)
+	templateUseCase := biz.NewTemplateUseCase(templateRepo, tagRepo)
+	templateService := service.NewTemplateService(templateUseCase)
 	manageRouter := &router.ManageRouter{
-		ManageApi: userService,
+		UserApi:     userService,
+		TagApi:      tagService,
+		TemplateApi: templateService,
 	}
 	app, err := pkg.NewApp(configConfig, monitorRouter, manageRouter)
 	if err != nil {

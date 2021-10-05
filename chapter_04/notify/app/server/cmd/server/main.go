@@ -2,8 +2,20 @@ package main
 
 import (
 	"log"
+	_ "notify/doc"
 	"notify/pkg/config"
 )
+
+// @title notify-server
+// @version 1.0
+// @description notify-server api 文档
+
+// @contact.name zbest
+// @contact.url http://wiki.zbest.tech
+// @contact.email zbest0513@gmail.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 func main() {
 	app, err := initApp(config.FileConfig{

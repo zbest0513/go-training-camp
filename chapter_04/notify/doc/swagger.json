@@ -1,0 +1,18 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "notify-server api 文档",
+        "title": "notify-server",
+        "contact": {
+            "name": "zbest",
+            "url": "http://wiki.zbest.tech",
+            "email": "zbest0513@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "paths": {}
+}

@@ -22,7 +22,7 @@ const (
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// Table holds the table name of the templatetagrelation in the database.
-	Table = "template_tag_relations"
+	Table = "notify_tag_template"
 )
 
 // Columns holds all SQL columns for templatetagrelation fields.

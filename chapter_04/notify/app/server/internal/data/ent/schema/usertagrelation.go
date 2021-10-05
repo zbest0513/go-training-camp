@@ -3,6 +3,8 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"notify-server/internal/pkg/enum"
 	"time"
@@ -11,6 +13,13 @@ import (
 // UserTagRelation holds the schema definition for the UserTagRelation entity.
 type UserTagRelation struct {
 	ent.Schema
+}
+
+// Annotations of the UserTagRelation.
+func (UserTagRelation) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "notify_user_tag"},
+	}
 }
 
 // Fields of the UserTagRelation.

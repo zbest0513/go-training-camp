@@ -16,7 +16,7 @@ type Template struct {
 	Name      string
 	Desc      string
 	Content   string
-	Status    int8
+	Status    int
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

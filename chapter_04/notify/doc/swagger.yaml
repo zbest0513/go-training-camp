@@ -1,0 +1,13 @@
+info:
+  contact:
+    email: zbest0513@gmail.com
+    name: zbest
+    url: http://wiki.zbest.tech
+  description: notify-server api 文档
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: notify-server
+  version: "1.0"
+paths: {}
+swagger: "2.0"

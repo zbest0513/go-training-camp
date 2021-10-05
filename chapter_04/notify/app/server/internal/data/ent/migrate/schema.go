@@ -17,7 +17,7 @@ var (
 		{Name: "uuid", Type: field.TypeString, Unique: true},
 		{Name: "desc", Type: field.TypeString, Size: 300},
 		{Name: "name", Type: field.TypeString, Size: 100},
-		{Name: "status", Type: field.TypeInt, Default: 1},
+		{Name: "status", Type: field.TypeInt, Default: 0},
 	}
 	// NotifyTagTable holds the schema information for the "notify_tag" table.
 	NotifyTagTable = &schema.Table{
@@ -34,7 +34,7 @@ var (
 		{Name: "desc", Type: field.TypeString, Size: 300},
 		{Name: "name", Type: field.TypeString, Size: 100},
 		{Name: "content", Type: field.TypeString},
-		{Name: "status", Type: field.TypeInt, Default: 1},
+		{Name: "status", Type: field.TypeInt, Default: 0},
 	}
 	// NotifyTemplateTable holds the schema information for the "notify_template" table.
 	NotifyTemplateTable = &schema.Table{
@@ -42,8 +42,8 @@ var (
 		Columns:    NotifyTemplateColumns,
 		PrimaryKey: []*schema.Column{NotifyTemplateColumns[0]},
 	}
-	// TemplateTagRelationsColumns holds the columns for the "template_tag_relations" table.
-	TemplateTagRelationsColumns = []*schema.Column{
+	// NotifyTagTemplateColumns holds the columns for the "notify_tag_template" table.
+	NotifyTagTemplateColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
@@ -51,11 +51,11 @@ var (
 		{Name: "tag_uuid", Type: field.TypeString, Nullable: true},
 		{Name: "status", Type: field.TypeInt, Default: 1},
 	}
-	// TemplateTagRelationsTable holds the schema information for the "template_tag_relations" table.
-	TemplateTagRelationsTable = &schema.Table{
-		Name:       "template_tag_relations",
-		Columns:    TemplateTagRelationsColumns,
-		PrimaryKey: []*schema.Column{TemplateTagRelationsColumns[0]},
+	// NotifyTagTemplateTable holds the schema information for the "notify_tag_template" table.
+	NotifyTagTemplateTable = &schema.Table{
+		Name:       "notify_tag_template",
+		Columns:    NotifyTagTemplateColumns,
+		PrimaryKey: []*schema.Column{NotifyTagTemplateColumns[0]},
 	}
 	// NotifyUserColumns holds the columns for the "notify_user" table.
 	NotifyUserColumns = []*schema.Column{
@@ -74,8 +74,8 @@ var (
 		Columns:    NotifyUserColumns,
 		PrimaryKey: []*schema.Column{NotifyUserColumns[0]},
 	}
-	// UserTagRelationsColumns holds the columns for the "user_tag_relations" table.
-	UserTagRelationsColumns = []*schema.Column{
+	// NotifyUserTagColumns holds the columns for the "notify_user_tag" table.
+	NotifyUserTagColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
@@ -83,19 +83,19 @@ var (
 		{Name: "tag_uuid", Type: field.TypeString, Nullable: true},
 		{Name: "status", Type: field.TypeInt, Default: 1},
 	}
-	// UserTagRelationsTable holds the schema information for the "user_tag_relations" table.
-	UserTagRelationsTable = &schema.Table{
-		Name:       "user_tag_relations",
-		Columns:    UserTagRelationsColumns,
-		PrimaryKey: []*schema.Column{UserTagRelationsColumns[0]},
+	// NotifyUserTagTable holds the schema information for the "notify_user_tag" table.
+	NotifyUserTagTable = &schema.Table{
+		Name:       "notify_user_tag",
+		Columns:    NotifyUserTagColumns,
+		PrimaryKey: []*schema.Column{NotifyUserTagColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		NotifyTagTable,
 		NotifyTemplateTable,
-		TemplateTagRelationsTable,
+		NotifyTagTemplateTable,
 		NotifyUserTable,
-		UserTagRelationsTable,
+		NotifyUserTagTable,
 	}
 )
 
@@ -106,7 +106,13 @@ func init() {
 	NotifyTemplateTable.Annotation = &entsql.Annotation{
 		Table: "notify_template",
 	}
+	NotifyTagTemplateTable.Annotation = &entsql.Annotation{
+		Table: "notify_tag_template",
+	}
 	NotifyUserTable.Annotation = &entsql.Annotation{
 		Table: "notify_user",
+	}
+	NotifyUserTagTable.Annotation = &entsql.Annotation{
+		Table: "notify_user_tag",
 	}
 }

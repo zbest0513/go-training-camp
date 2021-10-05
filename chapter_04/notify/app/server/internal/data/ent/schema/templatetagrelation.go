@@ -3,6 +3,8 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"notify-server/internal/pkg/enum"
 	"time"
@@ -11,6 +13,13 @@ import (
 // TemplateTagRelation holds the schema definition for the TemplateTagRelation entity.
 type TemplateTagRelation struct {
 	ent.Schema
+}
+
+// Annotations of the TemplateTagRelation.
+func (TemplateTagRelation) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "notify_tag_template"},
+	}
 }
 
 // Fields of the TemplateTagRelation.
