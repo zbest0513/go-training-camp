@@ -258,6 +258,8 @@ func (cb *CircuitBreaker) SyncCounters(isSuccess bool, idx int, flag bool) {
 	if flag {
 		cb.syncTryCounters(isSuccess)
 	}
+	//回写完结果判断状态
+	cb.check()
 }
 
 // 调用结果更新到恢复重试的计数上
