@@ -103,6 +103,7 @@ func NewCircuitBreaker(max uint32, windowTime int, strategy Strategy) *CircuitBr
 
 func (cb *CircuitBreaker) start() {
 	t := time.Tick(100 * time.Millisecond)
+	//100ms 生成一个新桶
 	go func() {
 		for !cb.isDestroy {
 			<-t
@@ -113,6 +114,7 @@ func (cb *CircuitBreaker) start() {
 	}()
 }
 
+// Destroy 停止生成新桶
 func (cb *CircuitBreaker) Destroy() {
 	cb.isDestroy = true
 }
@@ -133,6 +135,7 @@ func (cb *CircuitBreaker) halfOpen() {
 	cb.status = 2
 }
 
+// 生成新桶，丢弃老桶
 func (cb *CircuitBreaker) nextWindow() {
 	//将要抛弃的桶的计数归还给断路器
 	bucket := cb.buckets[cb.currBucket]
