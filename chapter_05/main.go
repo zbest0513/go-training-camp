@@ -20,10 +20,12 @@ func main() {
 	param := make(map[string]string, 5)
 	param["code"] = "0"
 	param["reason"] = "xxx"
-	param["sleep"] = "5"
+	//param["sleep"] = "5"
 	req.Param = param
 
 	result := client.Execute(*req)
 	log.Println(fmt.Sprintf("返回结果:{%v}", result))
+
+	select {}
 
 }

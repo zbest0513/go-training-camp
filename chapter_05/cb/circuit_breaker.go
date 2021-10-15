@@ -2,6 +2,8 @@ package cb
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"sync/atomic"
 	"time"
 )
@@ -138,7 +140,8 @@ func (cb *CircuitBreaker) halfOpen() {
 // 生成新桶，丢弃老桶
 func (cb *CircuitBreaker) nextWindow() {
 	//将要抛弃的桶的计数归还给断路器
-	bucket := cb.buckets[cb.currBucket]
+	currBucket := cb.currBucket
+	bucket := cb.buckets[currBucket]
 	total := atomic.LoadUint32(bucket.total)
 	atomic.AddUint32(cb.totalCount, ^uint32(-int32(total)-1))
 	success := int32(atomic.LoadUint32(bucket.success))
@@ -146,8 +149,10 @@ func (cb *CircuitBreaker) nextWindow() {
 	fail := int32(atomic.LoadUint32(bucket.fail))
 	atomic.AddUint32(cb.totalFailCount, ^uint32(-fail-1))
 	atomic.AddUint32(cb.leftover, total)
+	log.Println(fmt.Sprintf("时间窗口:%v,共计受理请求:%v", currBucket, total))
 	//重置桶
 	cb.buckets[cb.currBucket] = NewBucket(bucket.max)
+	cb.currBucket = (cb.currBucket + 1) % 10
 }
 
 //断路器状态校验
