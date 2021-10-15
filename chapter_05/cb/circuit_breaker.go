@@ -4,14 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"sync/atomic"
 	"time"
 )
 
 type CircuitBreaker struct {
 	isDestroy         bool      //是否销毁
 	status            byte      //断路器状态:0-close/1-open/2-half open
-	max               uint32    //最大并发数
+	max               int64     //最大并发数
 	windowTime        int       //窗口时长，单位秒
 	totalBucket       int       //总的桶数量
 	currBucket        int       //当前桶位置
@@ -21,31 +20,31 @@ type CircuitBreaker struct {
 	minFailCount      int       //最小错误数
 	failRate          float64   //错误率
 	recoveryRate      float64   //恢复率阈值，当试错的
-	tryTotal          uint32    //恢复期尝试总数
-	leftover          *uint32   //剩余并发数
-	totalSuccessCount *uint32   //时间窗口内总成功次数
-	totalFailCount    *uint32   //时间窗口内总的失败次数
-	totalCount        *uint32   //时间窗口内总的请求数量
-	tryLeftover       *uint32   //恢复期尝试余数
-	trySuccess        *uint32   //恢复期尝试成功数量
+	tryTotal          int64     //恢复期尝试总数
+	leftover          *int64    //剩余并发数
+	totalSuccessCount *int64    //时间窗口内总成功次数
+	totalFailCount    *int64    //时间窗口内总的失败次数
+	totalCount        *int64    //时间窗口内总的请求数量
+	tryLeftover       *int64    //恢复期尝试余数
+	trySuccess        *int64    //恢复期尝试成功数量
 }
 
 // Bucket
 // leftover用于限制桶内流
 // total、success、fail用于桶销毁后重置断路器内计数用的，扣减对应计数
 type Bucket struct {
-	max      uint32  //最大并发数
-	total    *uint32 //总访问次数
-	success  *uint32 //成功次数
-	fail     *uint32 //失败次数
-	leftover *uint32 //剩余量
+	max      int64  //最大并发数
+	total    *int64 //总访问次数
+	success  *int64 //成功次数
+	fail     *int64 //失败次数
+	leftover *int64 //剩余量
 }
 
-func NewBucket(leftover uint32) *Bucket {
+func NewBucket(leftover int64) *Bucket {
 	var max = leftover
-	var total = uint32(0)
-	var success = uint32(0)
-	var fail = uint32(0)
+	var total = int64(0)
+	var success = int64(0)
+	var fail = int64(0)
 	return &Bucket{
 		leftover: &max,
 		total:    &total,
@@ -56,29 +55,29 @@ func NewBucket(leftover uint32) *Bucket {
 }
 
 // CreateCircuitBreaker 创建默认断路器
-func CreateCircuitBreaker(max uint32, windowTime int) *CircuitBreaker {
+func CreateCircuitBreaker(max int64, windowTime int) *CircuitBreaker {
 	defaultStrategy := new(DefaultStrategy)
 	return NewCircuitBreaker(max, windowTime, defaultStrategy)
 }
 
 // NewCircuitBreaker 创建断路器
-func NewCircuitBreaker(max uint32, windowTime int, strategy Strategy) *CircuitBreaker {
+func NewCircuitBreaker(max int64, windowTime int, strategy Strategy) *CircuitBreaker {
 	//默认逻辑，1秒10个桶，每个桶处理100ms内的请求
 	totalBucket := windowTime * 10
 	buckets := make([]*Bucket, totalBucket, totalBucket)
 
 	//计算每个桶的最大容量,取整
-	bMax := max / uint32(totalBucket)
+	bMax := max / int64(totalBucket)
 	for i := 0; i < totalBucket; i++ {
 		buckets[i] = NewBucket(bMax)
 	}
 
-	var leftover uint32 = 0
-	var totalSuccessCount uint32 = 0
-	var totalCount uint32 = 0
-	var totalFailCount uint32 = 0
+	var leftover = max
+	var totalSuccessCount int64 = 0
+	var totalCount int64 = 0
+	var totalFailCount int64 = 0
 	var tryLeftover = strategy.GetTryCount()
-	var trySuccess uint32 = 0
+	var trySuccess int64 = 0
 	cb := &CircuitBreaker{
 		status:            0,
 		max:               max,
@@ -142,17 +141,20 @@ func (cb *CircuitBreaker) nextWindow() {
 	//将要抛弃的桶的计数归还给断路器
 	currBucket := cb.currBucket
 	bucket := cb.buckets[currBucket]
-	total := atomic.LoadUint32(bucket.total)
-	atomic.AddUint32(cb.totalCount, ^uint32(-int32(total)-1))
-	success := int32(atomic.LoadUint32(bucket.success))
-	atomic.AddUint32(cb.totalSuccessCount, ^uint32(-success-1))
-	fail := int32(atomic.LoadUint32(bucket.fail))
-	atomic.AddUint32(cb.totalFailCount, ^uint32(-fail-1))
-	atomic.AddUint32(cb.leftover, total)
-	log.Println(fmt.Sprintf("时间窗口:%v,共计受理请求:%v", currBucket, total))
+	//将丢弃的桶内，总次数、成功和失败的次数，从断路器的计数器中扣除
+	total := load(bucket.total)
+	success := load(bucket.success)
+	less(cb.totalSuccessCount, success)
+	fail := load(bucket.fail)
+	less(cb.totalFailCount, fail)
+	less(cb.totalCount, success)
+	less(cb.totalCount, fail)
+	log.Println(fmt.Sprintf("时间窗口:%v,受理请求:%v,桶余量:%v,总余量:%v,总受理:%v,成功：%v,失败:%v,状态:%v",
+		currBucket, total, load(bucket.leftover), load(cb.leftover), load(cb.totalCount), load(cb.totalSuccessCount),
+		load(cb.totalFailCount), cb.status))
 	//重置桶
 	cb.buckets[cb.currBucket] = NewBucket(bucket.max)
-	cb.currBucket = (cb.currBucket + 1) % 10
+	cb.currBucket = (cb.currBucket + 1) % cb.totalBucket
 }
 
 //断路器状态校验
@@ -163,8 +165,8 @@ func (cb *CircuitBreaker) check() {
 			cb.halfOpen()
 		}
 	} else if cb.status == 2 { //半开状态
-		leftover := atomic.LoadUint32(cb.tryLeftover)
-		success := float64(atomic.LoadUint32(cb.trySuccess))
+		leftover := load(cb.tryLeftover)
+		success := float64(load(cb.trySuccess))
 		total := float64(cb.tryTotal)
 		//全部试完
 		if leftover == 0 {
@@ -175,13 +177,13 @@ func (cb *CircuitBreaker) check() {
 			}
 		}
 	} else { //关闭状态
-		var failTotal = atomic.LoadUint32(cb.totalFailCount)
-		if failTotal < uint32(cb.minFailCount) { //错误数量太少，不开启断路器
+		var failTotal = load(cb.totalFailCount)
+		if failTotal < int64(cb.minFailCount) { //错误数量太少，不开启断路器
 			return
 		}
 		var fails = float64(failTotal)
-		var total = float64(atomic.LoadUint32(cb.totalCount))
-		if fails/total < cb.failRate/100 { //错误率低，不开启断路器
+		var success = float64(load(cb.totalSuccessCount))
+		if fails/(success+fails) < cb.failRate/100 { //错误率低，不开启断路器
 			return
 		}
 		cb.open() //开启断路器
@@ -202,46 +204,44 @@ func (cb *CircuitBreaker) Pass(flag bool) (int, error) {
 
 // TryPass 试放行
 func (cb *CircuitBreaker) TryPass() (int, error) {
-	var one int32 = 1
 	//总余量-1
-	count := atomic.AddUint32(cb.leftover, ^uint32(-one-1))
+	count := less(cb.leftover)
 	if count < 0 {
 		//放行失败，余量补1
-		atomic.AddUint32(cb.leftover, uint32(1))
+		add(cb.leftover)
 		return 0, errors.New("触发总限额")
 	}
 	currBucket := cb.currBucket
 	bucket := cb.buckets[currBucket]
 	//桶余量-1
-	count = atomic.AddUint32(bucket.leftover, ^uint32(-one-1))
+	count = less(bucket.leftover)
 	if count < 0 {
 		//放行失败，余量补1
-		atomic.AddUint32(cb.leftover, uint32(1))
-		atomic.AddUint32(bucket.leftover, uint32(1))
+		add(cb.leftover)
+		add(bucket.leftover)
 		return 0, errors.New("触发桶限额")
 	}
 
 	//总放行+1
-	atomic.AddUint32(cb.totalCount, uint32(1))
+	add(cb.totalCount)
 	//桶放行+1
-	atomic.AddUint32(bucket.total, uint32(1))
+	add(bucket.total)
 	return currBucket, nil
 }
 
 // TryRecovery 试恢复
 func (cb *CircuitBreaker) TryRecovery() (int, error) {
-	var one int32 = 1
 	//总余量-1
-	count := atomic.AddUint32(cb.tryLeftover, ^uint32(-one-1))
+	count := less(cb.tryLeftover)
 	if count < 0 {
 		//放行失败，余量补1
-		atomic.AddUint32(cb.tryLeftover, uint32(1))
+		add(cb.tryLeftover)
 		return 0, errors.New("试恢复限额")
 	}
 	idx, err := cb.TryPass()
 	if err != nil {
 		//放行失败，余量补1
-		atomic.AddUint32(cb.tryLeftover, uint32(1))
+		add(cb.tryLeftover)
 		return 0, err
 	}
 	return idx, nil
@@ -249,19 +249,18 @@ func (cb *CircuitBreaker) TryRecovery() (int, error) {
 
 // SyncCounters 调用结果同步到断路器的计数
 func (cb *CircuitBreaker) SyncCounters(isSuccess bool, idx int, flag bool) {
-	atomic.AddUint32(cb.tryLeftover, uint32(1))
-	if isSuccess {
-		atomic.AddUint32(cb.totalSuccessCount, uint32(1))
-		if atomic.LoadUint32(cb.buckets[idx].total) != 0 { //桶未过期，需要记录桶数据
-			atomic.AddUint32(cb.buckets[idx].success, uint32(1))
-			atomic.AddUint32(cb.buckets[idx].leftover, uint32(1))
-		}
+	add(cb.leftover) //有返回结果 + 总的余量
+	//桶的余量增加要限制，可能上一轮桶的请求
+	count := add(cb.buckets[idx].leftover)
+	if count > cb.buckets[idx].max { //加多了 减回来
+		less(cb.buckets[idx].leftover)
+	}
+	if isSuccess { //成功的记录 桶的成功
+		add(cb.totalSuccessCount)
+		add(cb.buckets[idx].success)
 	} else {
-		atomic.AddUint32(cb.totalFailCount, uint32(1))
-		if atomic.LoadUint32(cb.buckets[idx].total) != 0 { //桶未过期，需要记录桶数据
-			atomic.AddUint32(cb.buckets[idx].fail, uint32(1))
-			atomic.AddUint32(cb.buckets[idx].leftover, uint32(1))
-		}
+		add(cb.totalFailCount)
+		add(cb.buckets[idx].fail)
 	}
 	if flag {
 		cb.syncTryCounters(isSuccess)
@@ -273,6 +272,6 @@ func (cb *CircuitBreaker) SyncCounters(isSuccess bool, idx int, flag bool) {
 // 调用结果更新到恢复重试的计数上
 func (cb *CircuitBreaker) syncTryCounters(isSuccess bool) {
 	if isSuccess {
-		atomic.AddUint32(cb.trySuccess, uint32(1))
+		add(cb.trySuccess)
 	}
 }

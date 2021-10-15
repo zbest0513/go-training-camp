@@ -1,10 +1,5 @@
 package cb
 
-import (
-	"fmt"
-	"log"
-)
-
 type RemoteClient struct {
 	cb       *CircuitBreaker //断路器
 	executor Executor        //请求执行器
@@ -19,7 +14,10 @@ func (client *RemoteClient) Execute(req Request) Result {
 	var flag = true //false为试错流量
 
 	if status == 1 { //断路器开启，走降级
-		log.Println("断路器开启流量被熔断")
+		//log.Println("断路器开启流量被熔断")
+		if req.Fallback == nil { //未指定降级
+			return new(Result).Default()
+		}
 		return req.Fallback.F()
 	} else if status == 2 { //半开
 		flag = false
@@ -27,7 +25,10 @@ func (client *RemoteClient) Execute(req Request) Result {
 	//流量计数
 	idx, err := client.cb.Pass(flag)
 	if err != nil {
-		log.Println(fmt.Sprintf("流量被熔断:%v", err))
+		//log.Println(fmt.Sprintf("流量被熔断:%v", err))
+		if req.Fallback == nil { //未指定降级
+			return new(Result).Default()
+		}
 		return req.Fallback.F()
 	}
 	//执行调用

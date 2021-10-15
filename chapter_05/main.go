@@ -26,6 +26,4 @@ func main() {
 	result := client.Execute(*req)
 	log.Println(fmt.Sprintf("返回结果:{%v}", result))
 
-	select {}
-
 }

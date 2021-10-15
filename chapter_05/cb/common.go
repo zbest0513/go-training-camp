@@ -23,6 +23,14 @@ type Result struct {
 	Data   interface{}
 }
 
+func (result *Result) Default() Result {
+	result.Data = "失败"
+	result.Code = 5
+	result.Reason = "服务降级"
+
+	return *result
+}
+
 type FallBack struct {
 	F func() Result
 }
@@ -32,5 +40,5 @@ type Request struct {
 	ParamType   ParamType         //参数类型
 	Param       interface{}       //参数
 	Metadata    map[string]string //元数据或请求头
-	Fallback    FallBack          //降级方法
+	Fallback    *FallBack         //降级方法
 }
