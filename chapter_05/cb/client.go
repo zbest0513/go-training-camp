@@ -24,8 +24,8 @@ func (client *RemoteClient) Execute(req Request) Result {
 	}
 	//流量计数
 	idx, err := client.cb.Pass(flag)
-	if err != nil {
-		//log.Println(fmt.Sprintf("流量被熔断:%v", err))
+	if err != nil { //触发限流
+		//log.Println(fmt.Sprintf("流量被降级:%v", err))
 		if req.Fallback == nil { //未指定降级
 			return new(Result).Default()
 		}

@@ -149,19 +149,21 @@ func (cb *CircuitBreaker) nextWindow() {
 	less(cb.totalFailCount, fail)
 	less(cb.totalCount, success)
 	less(cb.totalCount, fail)
-	log.Println(fmt.Sprintf("时间窗口:%v,受理请求:%v,桶余量:%v,总余量:%v,总受理:%v,成功：%v,失败:%v,状态:%v",
+	log.Println(fmt.Sprintf("桶:%v[受理请求:%v,桶余量:%v,总余量:%v],时间窗口:[总受理:%v,成功：%v,失败:%v,状态:%v]",
 		currBucket, total, load(bucket.leftover), load(cb.leftover), load(cb.totalCount), load(cb.totalSuccessCount),
 		load(cb.totalFailCount), cb.status))
 	//重置桶
 	cb.buckets[cb.currBucket] = NewBucket(bucket.max)
 	cb.currBucket = (cb.currBucket + 1) % cb.totalBucket
+
+	cb.check()
 }
 
 //断路器状态校验
 func (cb *CircuitBreaker) check() {
 	if cb.status == 1 { //开启状态
 		//判断是否需要变更到半开状态
-		if time.Now().Nanosecond() >= cb.tryCloseTime.Nanosecond() {
+		if time.Now().UnixNano() >= cb.tryCloseTime.UnixNano() {
 			cb.halfOpen()
 		}
 	} else if cb.status == 2 { //半开状态
