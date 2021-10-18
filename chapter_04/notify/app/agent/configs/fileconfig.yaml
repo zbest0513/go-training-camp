@@ -1,0 +1,4 @@
+files:
+  loan-log:
+    path: /Users/wbh/Desktop/go_work_space/go-base-test/fsnotify/abc.txt
+    offset: 0
