@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"regexp"
 )
 
 type FileProcessor struct {
@@ -52,36 +53,39 @@ func (receiver *Listener) start(path string) error {
 type Parser struct {
 }
 
-func readLine() {
-	f, err := os.OpenFile("./abc.txt", os.O_RDWR, os.ModePerm)
+func ReadLines(path string, count int, idx int64) (int64, error) {
+	f, err := os.OpenFile(path, os.O_RDWR, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
-
-	seek, err := f.Seek(0, io.SeekEnd)
-
+	seek, err := f.Seek(idx, io.SeekStart)
 	rd := bufio.NewReader(f)
-	for {
-		line, err := rd.ReadString('\n') //以'\n'为结束符读入一行
+	var step int64
+	i := 0
+	var flag = false
+	for count > i || flag {
+		i++
+		line, err := rd.ReadString('\n')
+		step += int64(len(line))
 		if err != nil || io.EOF == err {
 			break
 		}
 		fmt.Print(line)
-	}
-
-	stat, _ := f.Stat()
-	wr, err := f.WriteString("9977\n")
-	println(fmt.Sprintf("=====:%v,%v", wr, err))
-	ret, _ := f.Seek(seek, io.SeekStart)
-	println("=========", seek, stat.Size(), ret)
-	rd = bufio.NewReader(f)
-	for {
-		line, err := rd.ReadString('\n') //以'\n'为结束符读入一行
-		if err != nil || io.EOF == err {
-			break
+		exception, _ := regexp.Compile(`\w+[.]\w+Exception:`)
+		match := exception.MatchString(line)
+		if match {
+			flag = true
+			continue
 		}
-		fmt.Print(line)
+		at, _ := regexp.Compile(`[\t]at `)
+		match = at.MatchString(line)
+		if !match {
+			flag = false
+		}
 	}
-
+	if step == 0 {
+		return seek, errors.New("null")
+	}
+	return seek + step, nil
 }
