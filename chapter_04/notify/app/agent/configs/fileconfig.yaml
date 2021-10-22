@@ -1,4 +1,3 @@
-files:
-  loan-log:
-    path: /Users/wbh/Desktop/go_work_space/go-base-test/fsnotify/abc.txt
-    offset: 0
+logs:
+  account-patch: /Users/wbh/Desktop/test.txt
+addr: http://127.0.0.1:8000/chat/reportTo
