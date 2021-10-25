@@ -17,7 +17,9 @@ type AgentProcessor struct {
 func NewAgentProcessor() *AgentProcessor {
 	ap := new(AgentProcessor)
 	c := make(chan bool)
+	c2 := make(chan bool)
 	ap.changeChan = c
+	ap.isStart = c2
 	ap.config = NewConfigProcessor(&c)
 	ap.logsContainer = make(map[string]*LogProcessor)
 	go func() {
@@ -30,23 +32,31 @@ func NewAgentProcessor() *AgentProcessor {
 }
 
 func (receiver *AgentProcessor) startListener() {
-	t := time.Tick(5 * time.Second)
-	//100ms 生成一个新桶
-	go func() {
+	ticker := time.NewTicker(5 * time.Second)
+	stopChan := make(chan bool)
+	defer close(stopChan)
+	go func(ticker *time.Ticker) {
+		defer ticker.Stop()
 		for {
-			log.Println("保存offset....")
-			<-t
-			go func() {
+			select {
+			case <-ticker.C:
+				log.Println("保存offset....")
 				receiver.savePoint()
-			}()
+			case stop := <-stopChan:
+				if stop {
+					log.Println("退出offset 保存")
+					return
+				}
+			}
 		}
-	}()
+	}(ticker)
+	<-receiver.isStart
+	stopChan <- true
 }
 
 func (receiver *AgentProcessor) Start() {
 	receiver.build()
 	receiver.startListener()
-	<-receiver.isStart
 }
 
 func (receiver *AgentProcessor) readPoint(key string) int64 {
@@ -76,12 +86,13 @@ func (receiver *AgentProcessor) savePoint() {
 }
 
 func (receiver *AgentProcessor) Destroy() {
+	defer close(receiver.isStart)
 	for _, v := range receiver.logsContainer {
 		v.Destroy()
 	}
 	receiver.config.Destroy()
 	receiver.savePoint()
-	receiver.isStart <- false
+	receiver.isStart <- true
 }
 
 func (receiver *AgentProcessor) build() {

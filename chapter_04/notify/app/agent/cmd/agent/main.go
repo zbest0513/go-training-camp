@@ -1,8 +1,25 @@
 package main
 
-import "notify-agent/internal"
+import (
+	"context"
+	"golang.org/x/sync/errgroup"
+	"log"
+	"notify-agent/internal"
+)
+import gutils "notify/pkg/utils"
 
 func main() {
+	ctx, ctxCancel := context.WithCancel(context.Background())
+	g, _ := errgroup.WithContext(ctx)
 	processor := internal.NewAgentProcessor()
-	processor.Start()
+	g.Go(func() error {
+		processor.Start()
+		return nil
+	})
+	go gutils.SignalHandle(func() {
+		log.Println("优雅退出")
+		processor.Destroy()
+		ctxCancel()
+	})
+	g.Wait()
 }
