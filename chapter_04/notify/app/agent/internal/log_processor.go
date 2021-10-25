@@ -17,14 +17,16 @@ type LogProcessor struct {
 	count  int
 	isRun  bool
 	addr   string
+	key    string
 }
 
-func CreateLogProcessor(path string, max int, offset int64, addr string) *LogProcessor {
+func CreateLogProcessor(path string, max int, offset int64, addr string, key string) *LogProcessor {
 	lp := &LogProcessor{
 		path:   path,
 		count:  max,
 		offset: offset,
 		addr:   addr,
+		key:    key,
 	}
 	go lp.Start()
 	return lp
@@ -37,14 +39,14 @@ func (lp *LogProcessor) Start() {
 		newIdx, err, errStr := lp.readLines(lp.offset)
 		lp.offset = newIdx
 		if errStr != "" {
-			log.Println(fmt.Sprintf("采集到日志:%v", errStr))
+			log.Println(fmt.Sprintf("%v采集到日志:%v", lp.key, errStr))
 			dto := SendMsgDto{
-				Content: errStr,
+				Content: lp.key + ":" + errStr,
 			}
 			result := Result{}
 			_, err2 := Post(lp.addr, dto, &result)
 			if err2 != nil {
-				log.Println(fmt.Sprintf("上报错误:%v", err2))
+				log.Println(fmt.Sprintf("%v上报错误:%v", lp.key, err2))
 			}
 		}
 		if errors.Is(err, eofError) {
@@ -67,6 +69,17 @@ func (lp *LogProcessor) readLines(idx int64) (int64, error, string) {
 		panic(err)
 	}
 	defer f.Close()
+
+	if idx == 0 {
+		stat, err := f.Stat()
+		if err != nil {
+			panic(err)
+		}
+		if size := stat.Size(); size > 0 {
+			idx = size
+		}
+	}
+
 	seek, err := f.Seek(idx, io.SeekStart)
 	rd := bufio.NewReader(f)
 	var step int64

@@ -89,7 +89,7 @@ func (receiver *AgentProcessor) build() {
 	for k, v := range pathmap {
 		if receiver.logsContainer[k] == nil {
 			log.Println(fmt.Sprintf("加入监听:%v", v))
-			receiver.logsContainer[k] = CreateLogProcessor(v, 40, receiver.readPoint(k), receiver.config.QueryAddr())
+			receiver.logsContainer[k] = CreateLogProcessor(v, 40, receiver.readPoint(k), receiver.config.QueryAddr(), k)
 		}
 	}
 }
