@@ -60,13 +60,16 @@ func (receiver *ConfigProcessor) start() error {
 			select {
 			case event, ok := <-receiver.watcher.Events:
 				if !ok {
-
 					return
 				}
+				log.Println("=================", event.Op, "===", event.Name)
 				if event.Op == fsnotify.Write || event.Op == fsnotify.Rename {
 					receiver.vip.ReadInConfig()
 					receiver.build()
 					*receiver.changeChan <- true
+				} else if event.Op == fsnotify.Remove {
+					receiver.watcher.Add(receiver.path)
+					log.Println("重新 add watcher ...")
 				}
 			}
 		}

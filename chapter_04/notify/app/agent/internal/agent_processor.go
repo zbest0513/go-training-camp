@@ -40,7 +40,7 @@ func (receiver *AgentProcessor) startListener() {
 		for {
 			select {
 			case <-ticker.C:
-				log.Println("保存offset....")
+
 				receiver.savePoint()
 			case stop := <-stopChan:
 				if stop {
@@ -74,6 +74,7 @@ func (receiver *AgentProcessor) readPoint(key string) int64 {
 }
 
 func (receiver *AgentProcessor) savePoint() {
+	log.Println("保存offset....")
 	vip := viper.New()
 	vip.SetConfigName("pointconfig")
 	vip.SetConfigType("yaml")

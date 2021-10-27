@@ -5,8 +5,8 @@ import (
 	"golang.org/x/sync/errgroup"
 	"log"
 	"notify-agent/internal"
+	gutils "notify/pkg/utils"
 )
-import gutils "notify/pkg/utils"
 
 func main() {
 	ctx, ctxCancel := context.WithCancel(context.Background())
@@ -22,4 +22,5 @@ func main() {
 		ctxCancel()
 	})
 	g.Wait()
+
 }

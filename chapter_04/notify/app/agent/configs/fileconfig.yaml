@@ -1,3 +1,10 @@
 logs:
   account-patch: /Users/wbh/Desktop/test.txt
+  account1-patch: /Users/wbh/Desktop/test1.txt
+  account2-patch: /Users/wbh/Desktop/test2.txt
+  account3-patch: /Users/wbh/Desktop/test3.txt
+  acount1: /Users/wbh/Desktop/test4.txt
+  account6-patch: /Users/wbh/Desktop/test6.txt
+  account7-patch: /Users/wbh/Desktop/test7.txt
+
 addr: http://127.0.0.1:8000/chat/reportTo
