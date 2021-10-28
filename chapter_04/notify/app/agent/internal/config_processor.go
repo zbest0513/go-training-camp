@@ -62,7 +62,6 @@ func (receiver *ConfigProcessor) start() error {
 				if !ok {
 					return
 				}
-				log.Println("=================", event.Op, "===", event.Name)
 				if event.Op == fsnotify.Write || event.Op == fsnotify.Rename {
 					receiver.vip.ReadInConfig()
 					receiver.build()
