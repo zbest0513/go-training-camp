@@ -33,6 +33,11 @@ func CreateLogProcessor(path string, max int, offset int64, addr string, key str
 }
 
 func (lp *LogProcessor) Start() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Println(fmt.Sprintf("日志监听异常:%v", err))
+		}
+	}()
 	lp.isRun = true
 	for lp.isRun {
 		log.Println(fmt.Sprintf("%v准备采集数据%v", lp.path, lp.offset))
