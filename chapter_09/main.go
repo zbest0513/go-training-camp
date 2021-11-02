@@ -1,17 +1,40 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
 	"strings"
+	"unsafe"
 )
 
 func main() {
-	server1()
+	//server1()
+	//
+	//select {}
 
-	select {}
+	println(fmt.Sprintf("%v", convertToBin(255)))
+	println(fmt.Sprintf("%v", bytes2str(str2bytes("a"))))
+}
+
+func str2bytes(s string) []byte {
+	x := (*[2]uintptr)(unsafe.Pointer(&s))
+	h := [3]uintptr{x[0], x[1], x[1]}
+	return *(*[]byte)(unsafe.Pointer(&h))
+}
+
+func bytes2str(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+}
+
+func convertToBin(num int) []byte {
+	data := int16(num)
+	bytebuf := bytes.NewBuffer([]byte{})
+	binary.Write(bytebuf, binary.BigEndian, data)
+	return bytebuf.Bytes()
 }
 
 func server1() {
