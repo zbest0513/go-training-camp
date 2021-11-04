@@ -7,6 +7,7 @@ require (
 	github.com/go-resty/resty/v2 v2.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.9.0
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	notify v0.0.0
 )
 
@@ -35,7 +36,6 @@ require (
 	github.com/ugorji/go/codec v1.2.6 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
 	golang.org/x/net v0.0.0-20210503060351-7fd8e65b6420 // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf // indirect
 	golang.org/x/text v0.3.6 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect

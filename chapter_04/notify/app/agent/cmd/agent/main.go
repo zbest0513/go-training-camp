@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+
 	ctx, ctxCancel := context.WithCancel(context.Background())
 	g, _ := errgroup.WithContext(ctx)
 	processor := internal.NewAgentProcessor()
@@ -22,5 +23,4 @@ func main() {
 		ctxCancel()
 	})
 	g.Wait()
-
 }

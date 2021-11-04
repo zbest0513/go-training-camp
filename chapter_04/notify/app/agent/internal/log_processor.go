@@ -107,9 +107,11 @@ func (lp *LogProcessor) readLines(idx int64) (int64, error, string) {
 			continue
 		}
 		at, _ := regexp.Compile(`[\t]at `)
+		cause, _ := regexp.Compile(`Caused by`)
 
 		match = at.MatchString(line)
-		if !match {
+		match2 := cause.MatchString(line)
+		if !match && !match2 {
 			flag = false
 		} else {
 			exceptionStr = fmt.Sprintf("%v%v", exceptionStr, line)
