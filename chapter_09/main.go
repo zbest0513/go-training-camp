@@ -4,19 +4,22 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"strings"
+	"time"
 	"unsafe"
 )
 
 func main() {
-	//server1()
-	//
-	//select {}
+	server1()
 
-	println(fmt.Sprintf("%v", convertToBin(255)))
+	time.Sleep(1)
+	//
+	go cli1()
+	select {}
+
+	println(fmt.Sprintf("%v", convertToBin(1)))
 	println(fmt.Sprintf("%v", bytes2str(str2bytes("a"))))
 }
 
@@ -38,7 +41,7 @@ func convertToBin(num int) []byte {
 }
 
 func server1() {
-	tcpaddr, err := net.ResolveTCPAddr("tcp4", "127.0.0.1:8080")
+	tcpaddr, err := net.ResolveTCPAddr("tcp4", "127.0.0.1:2880")
 	print(err)
 	//监听端口
 	tcplisten, err2 := net.ListenTCP("tcp", tcpaddr)
@@ -74,7 +77,7 @@ func cli1() {
 	//ResolveTCPAddr用于获取一个TCPAddr
 	//net参数是"tcp4"、"tcp6"、"tcp"
 	//addr表示域名或IP地址加端口号
-	tcpaddr, err := net.ResolveTCPAddr("tcp4", "www.163.com:80")
+	tcpaddr, err := net.ResolveTCPAddr("tcp4", "127.0.0.1:2880")
 	print(err)
 	//DialTCP建立一个TCP连接
 	//net参数是"tcp4"、"tcp6"、"tcp"
@@ -83,15 +86,25 @@ func cli1() {
 	tcpconn, err2 := net.DialTCP("tcp", nil, tcpaddr)
 	print(err2)
 	//向tcpconn中写入数据
-	_, err3 := tcpconn.Write([]byte("GET / HTTP/1.1 \r\n\r\n"))
+	_, err3 := tcpconn.Write([]byte("hello \r\n\r\n"))
+
 	print(err3)
-	//读取tcpconn中的所有数据
-	data, err4 := ioutil.ReadAll(tcpconn)
-	print(err4)
-	//打印出数据
-	fmt.Println(string(data))
+	////读取tcpconn中的所有数据
+	for {
+		data := make([]byte, 256)
+		n, errx := tcpconn.Read(data)
+		if n == 0 || errx != nil {
+			return
+		}
+		cmd := strings.TrimSpace(string(data[0:n]))
+		//向客户端发送数据，并关闭连接
+		println(cmd)
+	}
 }
 
 func print(err error) {
+	if err == nil {
+		return
+	}
 	log.Println(fmt.Sprintf("err:%v", err))
 }
