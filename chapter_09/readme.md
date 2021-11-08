@@ -99,6 +99,8 @@ length+body
 
 ## 作业2：实现一个从socket connection 解码goim的协议解析器
 
+按goim 协议完成tcp/ip自定义协议的通信
+
 参数名            | 必选    | 类型              | 说明
 ----------------|-------|-----------------|------------------------------------------
 package length | true  | int32 bigendian | 包总长度
@@ -110,3 +112,8 @@ body           | false | binary          | $\(package lenth\) \- $\(header lengt
 
 
 具体实现demo 见main函数
+
+启动 main 启动一个server端监听，和一个client端。
+client 接受控制台输入，发送给server端，server端打印出控制台输入的字符串
+
+
