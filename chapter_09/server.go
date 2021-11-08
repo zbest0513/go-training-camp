@@ -1,25 +1,29 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
-	"strings"
 	"sync/atomic"
 )
 
-type server struct {
-	addr        string //监听ip:port
-	max         int32  //最大连接数
-	connTimeOut int    //超时未有请求，关闭连接
+type Server struct {
+	addr string //监听ip:port
+	max  int32  //最大连接数
 }
 
-func (receiver *server) start() {
+func NewServer(addr string, max int32) *Server {
+	return &Server{
+		addr: addr,
+		max:  max,
+	}
+}
+
+func (receiver *Server) start() {
 	tcpaddr, err := net.ResolveTCPAddr("tcp4", receiver.addr)
-	checkErr(err)
+	print(err)
 	//监听端口
 	tcplisten, err2 := net.ListenTCP("tcp", tcpaddr)
-	checkErr(err2)
+	print(err2)
 	//死循环的处理客户端请求
 	go func() {
 		leftover := receiver.max
@@ -36,15 +40,26 @@ func (receiver *server) start() {
 						conn.Close()
 						atomic.AddInt32(&leftover, 1)
 					}()
-					data := make([]byte, 256)
+					length := make([]byte, 4)
 					for {
-						n, errx := conn.Read(data)
-						if n == 0 || errx != nil {
+						n1, errx := conn.Read(length)
+						if n1 == 0 || errx != nil {
 							return
 						}
-						cmd := strings.TrimSpace(string(data[0:n]))
-						//向客户端发送数据，并关闭连接
-						conn.Write([]byte(cmd + "\r\n"))
+						strBytes := length
+						protocol := NewGoimProtocol()
+						count := protocol.DecodePackageLength(strBytes)
+						data := make([]byte, count)
+
+						n2, errx := conn.Read(data)
+						if n2 == 0 || errx != nil {
+							return
+						}
+
+						strBytes = data
+						dStr := protocol.Decode(strBytes)
+						s := dStr.(string)
+						println("服务端接受:", s)
 					}
 				}()
 			} else {
@@ -53,8 +68,4 @@ func (receiver *server) start() {
 			}
 		}
 	}()
-}
-
-func checkErr(err error) {
-	log.Fatalf(fmt.Sprintf("error:%v", err))
 }

@@ -99,3 +99,14 @@ length+body
 
 ## 作业2：实现一个从socket connection 解码goim的协议解析器
 
+参数名            | 必选    | 类型              | 说明
+----------------|-------|-----------------|------------------------------------------
+package length | true  | int32 bigendian | 包总长度
+header Length  | true  | int16 bigendian | 包头长度
+ver            | true  | int16 bigendian | 协议版本
+operation      | true  | int32 bigendian | 协议指令
+seq            | true  | int32 bigendian | 序列号
+body           | false | binary          | $\(package lenth\) \- $\(header length\) 
+
+
+具体实现demo 见main函数
