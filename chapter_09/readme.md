@@ -18,7 +18,7 @@
 共11个字节（byte ）
 
 
-### fix length
+### 1.fix length
 以固定字节长度 编码/解码
 
 以上面"hello world" 为例，假设以6字节为固定长度粘包
@@ -33,7 +33,7 @@
 
 适用与固定长度的消息传递
 
-### delimiter based 
+### 2.delimiter based 
 以分隔符 编码/解码
 
 以上面"hello world" 为例，假设以" "字符为delimiter粘包
@@ -49,7 +49,7 @@
 缺点：如果被编码的数据包含原本就包含分割符，需要对分隔符转译，否则解码的结果会与预想不同
 
 
-### length field based frame decoder
+### 3.length field based frame decoder
 自定义长度帧 编码/解码
 通过一个定长的字节记录数据包长度，再加上数据包组成：
 length+body
@@ -113,7 +113,7 @@ body           | false | binary          | $\(package lenth\) \- $\(header lengt
 
 具体实现demo 见main函数
 
-启动 main 启动一个server端监听，和一个client端。
+main函数 启动一个server端监听，和一个client端。
 client 接受控制台输入，发送给server端，server端打印出控制台输入的字符串
 
 
