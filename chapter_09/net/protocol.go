@@ -1,4 +1,4 @@
-package main
+package net
 
 type GoimProtocol struct {
 	PackageLength int32  //包总长度 4字节

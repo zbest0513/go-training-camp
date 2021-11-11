@@ -1,4 +1,4 @@
-package main
+package net
 
 import (
 	"bufio"
@@ -17,7 +17,7 @@ func NewClient(addr string) *Client {
 	}
 }
 
-func (c *Client) start() {
+func (c *Client) Start() {
 	tcpaddr, _ := net.ResolveTCPAddr("tcp4", c.addr)
 	tcpconn, _ := net.DialTCP("tcp", nil, tcpaddr)
 

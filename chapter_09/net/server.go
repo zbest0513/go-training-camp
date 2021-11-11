@@ -1,4 +1,4 @@
-package main
+package net
 
 import (
 	"log"
@@ -18,7 +18,7 @@ func NewServer(addr string, max int32) *Server {
 	}
 }
 
-func (receiver *Server) start() {
+func (receiver *Server) Start() {
 	tcpaddr, err := net.ResolveTCPAddr("tcp4", receiver.addr)
 	print(err)
 	//监听端口
