@@ -24,13 +24,11 @@ func (receiver *Server) start() {
 	//监听端口
 	tcplisten, err2 := net.ListenTCP("tcp", tcpaddr)
 	print(err2)
-	//死循环的处理客户端请求
 	go func() {
 		leftover := receiver.max
 		for {
 			if atomic.AddInt32(&leftover, -1) > 0 {
 				conn, err3 := tcplisten.Accept()
-				//如果有错误直接跳过
 				if err3 != nil {
 					atomic.AddInt32(&leftover, 1)
 					continue
@@ -42,21 +40,23 @@ func (receiver *Server) start() {
 					}()
 					length := make([]byte, 4)
 					for {
+						//读取package length
 						n1, errx := conn.Read(length)
 						if n1 == 0 || errx != nil {
 							return
 						}
 						strBytes := length
 						protocol := NewGoimProtocol()
+						//解析package length
 						count := protocol.DecodePackageLength(strBytes)
+						//读取除了package length 外，整包的内容（head+body）
 						data := make([]byte, count)
-
 						n2, errx := conn.Read(data)
 						if n2 == 0 || errx != nil {
 							return
 						}
-
 						strBytes = data
+						//解析包内容
 						dStr := protocol.Decode(strBytes)
 						s := dStr.(string)
 						println("服务端接受:", s)
