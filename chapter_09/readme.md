@@ -111,9 +111,12 @@ seq            | true  | int32 bigendian | 序列号
 body           | false | binary          | $\(package lenth\) \- $\(header length\) 
 
 
-具体实现demo 见main函数
+具体实现demo 见main函数（可运行）
 
 main函数 启动一个server端监听，和一个client端。
-client 接受控制台输入，发送给server端，server端打印出控制台输入的字符串
+
+client端：接受控制台输入，发送给server端
+
+server端：打印出client发送的字符串到控制台
 
 
